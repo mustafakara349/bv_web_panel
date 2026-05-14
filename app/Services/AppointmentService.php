@@ -26,13 +26,19 @@ class AppointmentService
             unset($data['services']);
 
             $totalDuration = 0;
+            foreach ($services as $service) {
+                $totalDuration += $service['duration_minutes'];
+            }
+
+            $data['end_at'] = \Carbon\Carbon::parse($data['start_at'])->addMinutes($totalDuration);
+            $data['total_duration'] = $totalDuration;
+
             $subtotal = 0;
 
             $appointment = $this->appointmentRepo->create($data);
 
             foreach ($services as $service) {
                 $totalPrice = $service['unit_price'] * ($service['quantity'] ?? 1);
-                $totalDuration += $service['duration_minutes'];
                 $subtotal += $totalPrice;
 
                 AppointmentServiceModel::create([
@@ -47,10 +53,8 @@ class AppointmentService
             }
 
             $appointment->update([
-                'total_duration' => $totalDuration,
                 'subtotal' => $subtotal,
                 'total_price' => $subtotal - ($data['discount_amount'] ?? 0) + ($data['tax_amount'] ?? 0),
-                'end_at' => $appointment->start_at->addMinutes($totalDuration),
             ]);
 
             $this->logStatusChange($appointment, null, AppointmentStatus::Pending->value);

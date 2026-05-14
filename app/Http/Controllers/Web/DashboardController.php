@@ -19,8 +19,9 @@ class DashboardController extends Controller
         $topServices = $this->dashboardService->getTopServices($branchId);
         $revenueChart = $this->dashboardService->getRevenueChart($branchId);
         $todayAppointments = $this->dashboardService->getTodayAppointments($branchId);
+        $pendingAppointments = $this->dashboardService->getPendingAppointments($branchId);
 
-        return view('dashboard.index', compact('widgets', 'barbers', 'topServices', 'revenueChart', 'todayAppointments'));
+        return view('dashboard.index', compact('widgets', 'barbers', 'topServices', 'revenueChart', 'todayAppointments', 'pendingAppointments'));
     }
 
     private function getActiveBranchId(): int

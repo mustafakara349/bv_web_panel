@@ -9,7 +9,7 @@
                 <p class="text-muted">{{ $customer->full_name }} bilgilerini güncelleyin.</p>
             </div>
             <a href="{{ route('customers.index') }}" class="btn btn-outline-secondary">
-                <i class="ti-arrow-left me-1"></i> Geri Dön
+                <i class="ti ti-arrow-left me-1"></i> Geri Dön
             </a>
         </div>
     </div>
@@ -79,7 +79,7 @@
 
                     <div class="mt-4 text-end">
                         <button type="submit" class="btn btn-primary px-4 rounded-pill shadow-sm">
-                            <i class="ti-check me-1"></i> Değişiklikleri Kaydet
+                            <i class="ti ti-check me-1"></i> Değişiklikleri Kaydet
                         </button>
                     </div>
                 </form>

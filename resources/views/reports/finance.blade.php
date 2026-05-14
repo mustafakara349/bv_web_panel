@@ -9,7 +9,7 @@
                 <p class="text-muted">Son gelir ve gider işlemlerinin detaylı dökümü.</p>
             </div>
             <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary">
-                <i class="ti-arrow-left me-1"></i> Geri Dön
+                <i class="ti ti-arrow-left me-1"></i> Geri Dön
             </a>
         </div>
     </div>
@@ -19,7 +19,7 @@
     <div class="col-md-6">
         <div class="card shadow-sm border-0 rounded-3 h-100">
             <div class="card-header bg-transparent border-bottom py-3">
-                <h5 class="mb-0 text-success"><i class="ti-trending-up me-2"></i>Son Gelirler</h5>
+                <h5 class="mb-0 text-success"><i class="ti ti-trending-up me-2"></i>Son Gelirler</h5>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -50,7 +50,7 @@
     <div class="col-md-6">
         <div class="card shadow-sm border-0 rounded-3 h-100">
             <div class="card-header bg-transparent border-bottom py-3">
-                <h5 class="mb-0 text-danger"><i class="ti-trending-down me-2"></i>Son Giderler</h5>
+                <h5 class="mb-0 text-danger"><i class="ti ti-trending-down me-2"></i>Son Giderler</h5>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">

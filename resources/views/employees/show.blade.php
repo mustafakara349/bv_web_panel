@@ -9,7 +9,7 @@
                 <p class="text-muted">{{ $employee->user->full_name }} detayları ve performans verileri.</p>
             </div>
             <a href="{{ route('employees.index') }}" class="btn btn-outline-secondary">
-                <i class="ti-arrow-left me-1"></i> Geri Dön
+                <i class="ti ti-arrow-left me-1"></i> Geri Dön
             </a>
         </div>
     </div>
@@ -31,7 +31,7 @@
                 <p class="text-muted mb-3">{{ $employee->title ?? 'Unvan Belirtilmemiş' }}</p>
                 
                 <div class="d-flex justify-content-center gap-2 mb-4">
-                    <span class="badge bg-light text-dark border"><i class="ti-id-badge me-1"></i>{{ $employee->employee_code }}</span>
+                    <span class="badge bg-light text-dark border"><i class="ti ti-id-badge me-1"></i>{{ $employee->employee_code }}</span>
                     @if($employee->is_active)
                         <span class="badge bg-success-subtle text-success border border-success-subtle">Aktif</span>
                     @else
@@ -42,21 +42,21 @@
 
                 <div class="text-start border-top pt-4">
                     <div class="mb-3 d-flex align-items-center">
-                        <div class="bg-light rounded p-2 me-3 text-secondary"><i class="ti-mail fs-5"></i></div>
+                        <div class="bg-light rounded p-2 me-3 text-secondary"><i class="ti ti-mail fs-5"></i></div>
                         <div>
                             <small class="d-block text-muted">E-posta</small>
                             <span class="fw-medium">{{ $employee->user->email }}</span>
                         </div>
                     </div>
                     <div class="mb-3 d-flex align-items-center">
-                        <div class="bg-light rounded p-2 me-3 text-secondary"><i class="ti-phone fs-5"></i></div>
+                        <div class="bg-light rounded p-2 me-3 text-secondary"><i class="ti ti-phone fs-5"></i></div>
                         <div>
                             <small class="d-block text-muted">Telefon</small>
                             <span class="fw-medium">{{ $employee->user->phone ?? '-' }}</span>
                         </div>
                     </div>
                     <div class="mb-3 d-flex align-items-center">
-                        <div class="bg-light rounded p-2 me-3 text-secondary"><i class="ti-calendar fs-5"></i></div>
+                        <div class="bg-light rounded p-2 me-3 text-secondary"><i class="ti ti-calendar fs-5"></i></div>
                         <div>
                             <small class="d-block text-muted">İşe Başlama</small>
                             <span class="fw-medium">{{ $employee->hire_date ? $employee->hire_date->format('d.m.Y') : '-' }}</span>
@@ -66,7 +66,7 @@
             </div>
             <div class="card-footer bg-white border-top p-3 text-center">
                 <a href="{{ route('employees.edit', $employee->id) }}" class="btn btn-primary rounded-pill px-4 w-100">
-                    <i class="ti-pencil me-1"></i> Profili Düzenle
+                    <i class="ti ti-pencil me-1"></i> Profili Düzenle
                 </a>
             </div>
         </div>
@@ -78,7 +78,7 @@
             <div class="col-md-6">
                 <div class="card shadow-sm border-0 bg-success bg-opacity-10 rounded-3">
                     <div class="card-body p-4 d-flex align-items-center">
-                        <div class="bg-success text-white rounded p-3 me-3"><i class="ti-cash fs-3"></i></div>
+                        <div class="bg-success text-white rounded p-3 me-3"><i class="ti ti-cash fs-3"></i></div>
                         <div>
                             <h3 class="mb-0 fw-bold">₺{{ number_format($totalRevenue, 2, ',', '.') }}</h3>
                             <span class="text-success fw-medium">Üretilen Toplam Ciro</span>
@@ -89,7 +89,7 @@
             <div class="col-md-6">
                 <div class="card shadow-sm border-0 bg-primary bg-opacity-10 rounded-3">
                     <div class="card-body p-4 d-flex align-items-center">
-                        <div class="bg-primary text-white rounded p-3 me-3"><i class="ti-calendar-check fs-3"></i></div>
+                        <div class="bg-primary text-white rounded p-3 me-3"><i class="ti ti-calendar-check fs-3"></i></div>
                         <div>
                             <h3 class="mb-0 fw-bold">{{ $completedAppointments }}</h3>
                             <span class="text-primary fw-medium">Tamamlanan Randevu</span>

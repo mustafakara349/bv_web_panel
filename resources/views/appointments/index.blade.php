@@ -53,7 +53,7 @@
                     <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}">
                 </div>
                 <div class="col-lg-1 col-md-6">
-                    <button type="submit" class="btn btn-primary btn-sm w-100">Filtrele</button>
+                    <button type="submit" class="btn btn-primary btn-sm w-100"><i class="ti ti-filter me-1"></i> Filtrele</button>
                 </div>
             </form>
         </div>
@@ -120,9 +120,21 @@
                                 </span>
                             </td>
                             <td>
-                                <a href="{{ route('appointments.show', $apt) }}" class="btn btn-sm btn-outline-primary">
-                                    <i class="ti ti-eye"></i>
-                                </a>
+                                <div class="btn-group shadow-sm">
+                                    <a href="{{ route('appointments.show', $apt) }}" class="btn btn-sm btn-light text-primary" title="Görüntüle">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                    @if($apt->status->value != 'cancelled' && $apt->status->value != 'completed')
+                                    <form action="{{ route('appointments.update-status', $apt) }}" method="POST" class="d-inline" onsubmit="return confirm('Bu randevuyu iptal etmek istediğinize emin misiniz?');">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="status" value="cancelled">
+                                        <button type="submit" class="btn btn-sm btn-light text-danger" style="border-top-left-radius: 0; border-bottom-left-radius: 0;" title="İptal Et">
+                                            <i class="ti ti-x"></i>
+                                        </button>
+                                    </form>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                         @empty

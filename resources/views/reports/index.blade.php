@@ -14,7 +14,7 @@
     <div class="col-md-3">
         <div class="card shadow-sm border-0 rounded-3 bg-primary bg-opacity-10 h-100">
             <div class="card-body text-center p-4">
-                <i class="ti-calendar-check fs-1 text-primary mb-3"></i>
+                <i class="ti ti-calendar-check fs-1 text-primary mb-3"></i>
                 <h3 class="fw-bold mb-1">{{ $generalStats['total_appointments'] }}</h3>
                 <span class="text-muted">Toplam Randevu</span>
             </div>
@@ -23,7 +23,7 @@
     <div class="col-md-3">
         <div class="card shadow-sm border-0 rounded-3 bg-success bg-opacity-10 h-100">
             <div class="card-body text-center p-4">
-                <i class="ti-users fs-1 text-success mb-3"></i>
+                <i class="ti ti-users fs-1 text-success mb-3"></i>
                 <h3 class="fw-bold mb-1">{{ $generalStats['total_customers'] }}</h3>
                 <span class="text-muted">Toplam Müşteri</span>
             </div>
@@ -32,7 +32,7 @@
     <div class="col-md-3">
         <div class="card shadow-sm border-0 rounded-3 bg-info bg-opacity-10 h-100">
             <div class="card-body text-center p-4">
-                <i class="ti-trending-up fs-1 text-info mb-3"></i>
+                <i class="ti ti-trending-up fs-1 text-info mb-3"></i>
                 <h3 class="fw-bold mb-1">₺{{ number_format($generalStats['total_income'], 2, ',', '.') }}</h3>
                 <span class="text-muted">Toplam Gelir</span>
             </div>
@@ -41,7 +41,7 @@
     <div class="col-md-3">
         <div class="card shadow-sm border-0 rounded-3 bg-danger bg-opacity-10 h-100">
             <div class="card-body text-center p-4">
-                <i class="ti-trending-down fs-1 text-danger mb-3"></i>
+                <i class="ti ti-trending-down fs-1 text-danger mb-3"></i>
                 <h3 class="fw-bold mb-1">₺{{ number_format($generalStats['total_expense'], 2, ',', '.') }}</h3>
                 <span class="text-muted">Toplam Gider</span>
             </div>
@@ -54,11 +54,11 @@
         <div class="card shadow-sm border-0 rounded-3 h-100">
             <div class="card-body text-center p-5">
                 <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
-                    <i class="ti-cash fs-1 text-primary"></i>
+                    <i class="ti ti-cash fs-1 text-primary"></i>
                 </div>
                 <h4 class="fw-bold mb-3">Finansal Raporlar</h4>
                 <p class="text-muted mb-4">Gelir ve gider işlemlerinizin detaylı dökümünü ve analizlerini görüntüleyin.</p>
-                <a href="{{ route('reports.show', 'finance') }}" class="btn btn-outline-primary rounded-pill px-4">Raporu İncele</a>
+                <a href="{{ route('reports.show', 'finance') }}" class="btn btn-outline-primary rounded-pill px-4"><i class="ti ti-chart-bar me-1"></i> Raporu İncele</a>
             </div>
         </div>
     </div>
@@ -67,11 +67,11 @@
         <div class="card shadow-sm border-0 rounded-3 h-100">
             <div class="card-body text-center p-5">
                 <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
-                    <i class="ti-calendar-stats fs-1 text-success"></i>
+                    <i class="ti ti-calendar-stats fs-1 text-success"></i>
                 </div>
                 <h4 class="fw-bold mb-3">Randevu Analizleri</h4>
                 <p class="text-muted mb-4">Gerçekleşen, iptal olan veya gelinemeyen randevuların dağılımı ve analizleri.</p>
-                <a href="{{ route('reports.show', 'appointments') }}" class="btn btn-outline-success rounded-pill px-4">Raporu İncele</a>
+                <a href="{{ route('reports.show', 'appointments') }}" class="btn btn-outline-success rounded-pill px-4"><i class="ti ti-chart-bar me-1"></i> Raporu İncele</a>
             </div>
         </div>
     </div>
@@ -80,11 +80,11 @@
         <div class="card shadow-sm border-0 rounded-3 h-100">
             <div class="card-body text-center p-5">
                 <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
-                    <i class="ti-users fs-1 text-info"></i>
+                    <i class="ti ti-users fs-1 text-info"></i>
                 </div>
                 <h4 class="fw-bold mb-3">Müşteri Raporları</h4>
                 <p class="text-muted mb-4">En sadık müşterileriniz, sık tercih edilen hizmetleri ve ziyaret istatistikleri.</p>
-                <a href="{{ route('reports.show', 'customers') }}" class="btn btn-outline-info rounded-pill px-4">Raporu İncele</a>
+                <a href="{{ route('reports.show', 'customers') }}" class="btn btn-outline-info rounded-pill px-4"><i class="ti ti-chart-bar me-1"></i> Raporu İncele</a>
             </div>
         </div>
     </div>

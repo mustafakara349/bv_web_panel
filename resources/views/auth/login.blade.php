@@ -45,7 +45,7 @@
                     </div>
                 </div>
 
-                <button class="btn btn-primary w-100" type="submit">Giriş Yap</button>
+                <button class="btn btn-primary w-100" type="submit"><i class="ti ti-login me-1"></i> Giriş Yap</button>
             </form>
         </div>
     </div>

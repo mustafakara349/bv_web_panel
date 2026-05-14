@@ -55,8 +55,19 @@ class DashboardService
     {
         return \App\Models\Appointment::forBranch($branchId)
             ->whereDate('start_at', today())
+            ->where('start_at', '>=', now())
+            ->whereIn('status', ['confirmed', 'in_progress'])
             ->with(['customer', 'employee.user', 'appointmentServices.service'])
-            ->orderByRaw('CASE WHEN start_at >= NOW() THEN 0 ELSE 1 END')
+            ->orderBy('start_at', 'asc')
+            ->get();
+    }
+
+    public function getPendingAppointments(int $branchId)
+    {
+        return \App\Models\Appointment::forBranch($branchId)
+            ->where('status', \App\Enums\AppointmentStatus::Pending)
+            ->where('start_at', '>=', now())
+            ->with(['customer', 'employee.user', 'appointmentServices.service'])
             ->orderBy('start_at', 'asc')
             ->get();
     }

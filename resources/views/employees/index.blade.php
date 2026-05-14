@@ -10,11 +10,11 @@
             </div>
             <div class="d-flex align-items-center gap-3">
                 <div class="btn-group shadow-sm">
-                    <a href="{{ route('employees.index') }}" class="btn {{ request('role') !== 'barber' ? 'btn-primary' : 'btn-outline-primary' }}">Tümü</a>
-                    <a href="{{ route('employees.index', ['role' => 'barber']) }}" class="btn {{ request('role') === 'barber' ? 'btn-primary' : 'btn-outline-primary' }}">Sadece Berberler</a>
+                    <a href="{{ route('employees.index') }}" class="btn {{ request('role') !== 'barber' ? 'btn-primary' : 'btn-outline-primary' }}"><i class="ti ti-users me-1"></i> Tümü</a>
+                    <a href="{{ route('employees.index', ['role' => 'barber']) }}" class="btn {{ request('role') === 'barber' ? 'btn-primary' : 'btn-outline-primary' }}"><i class="ti ti-cut me-1"></i> Sadece Berberler</a>
                 </div>
                 <a href="{{ route('employees.create') }}" class="btn btn-success rounded-pill px-4 shadow-sm">
-                    <i class="ti-plus me-1"></i> Yeni Çalışan Ekle
+                    <i class="ti ti-plus me-1"></i> Yeni Çalışan Ekle
                 </a>
             </div>
         </div>
@@ -50,7 +50,7 @@
                                                 @if($employee->user)
                                                     {{ mb_substr($employee->user->first_name, 0, 1) }}{{ mb_substr($employee->user->last_name, 0, 1) }}
                                                 @else
-                                                    <i class="ti-user"></i>
+                                                    <i class="ti ti-user"></i>
                                                 @endif
                                             </div>
                                         @endif
@@ -71,12 +71,12 @@
                                     @if($employee->user)
                                     <div class="d-flex flex-column gap-1">
                                         <div class="d-flex align-items-center text-dark" title="{{ $employee->user->email }}">
-                                            <i class="ti-mail text-muted me-2"></i>
+                                            <i class="ti ti-mail text-muted me-2"></i>
                                             <span class="fs-7 text-truncate" style="max-width: 150px;">{{ $employee->user->email }}</span>
                                         </div>
                                         @if($employee->user->phone)
                                         <div class="d-flex align-items-center text-dark">
-                                            <i class="ti-phone text-muted me-2"></i>
+                                            <i class="ti ti-phone text-muted me-2"></i>
                                             <span class="fs-7">{{ $employee->user->phone }}</span>
                                         </div>
                                         @endif
@@ -88,13 +88,13 @@
                                 <td>
                                     <div class="d-flex flex-column">
                                         @if($employee->salary_type == App\Enums\SalaryType::Fixed)
-                                            <span class="fw-medium text-dark d-flex align-items-center"><i class="ti-cash text-success me-1"></i> Sabit Maaş</span>
+                                            <span class="fw-medium text-dark d-flex align-items-center"><i class="ti ti-cash text-success me-1"></i> Sabit Maaş</span>
                                         @elseif($employee->salary_type == App\Enums\SalaryType::Commission)
-                                            <span class="fw-medium text-dark d-flex align-items-center"><i class="ti-percentage text-warning me-1"></i> Prim Usulü</span>
+                                            <span class="fw-medium text-dark d-flex align-items-center"><i class="ti ti-percentage text-warning me-1"></i> Prim Usulü</span>
                                         @elseif($employee->salary_type == App\Enums\SalaryType::FixedPlusCommission)
-                                            <span class="fw-medium text-dark d-flex align-items-center"><i class="ti-wallet text-info me-1"></i> Maaş + Prim</span>
+                                            <span class="fw-medium text-dark d-flex align-items-center"><i class="ti ti-wallet text-info me-1"></i> Maaş + Prim</span>
                                         @elseif($employee->salary_type == App\Enums\SalaryType::Hourly)
-                                            <span class="fw-medium text-dark d-flex align-items-center"><i class="ti-time text-primary me-1"></i> Saatlik</span>
+                                            <span class="fw-medium text-dark d-flex align-items-center"><i class="ti ti-time text-primary me-1"></i> Saatlik</span>
                                         @endif
                                         <small class="text-muted mt-1">{{ number_format($employee->salary_amount, 2) }} ₺</small>
                                     </div>
@@ -102,30 +102,30 @@
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="bg-primary-subtle text-primary rounded-pill px-3 py-1 fw-semibold d-flex align-items-center">
-                                            <i class="ti-calendar me-2"></i> {{ $employee->appointments_count }}
+                                            <i class="ti ti-calendar me-2"></i> {{ $employee->appointments_count }}
                                         </div>
                                     </div>
                                 </td>
                                 <td>
                                     @if($employee->is_active)
-                                        <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2"><i class="ti-check-circle me-1"></i>Aktif</span>
+                                        <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2"><i class="ti ti-check-circle me-1"></i>Aktif</span>
                                     @else
-                                        <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-2"><i class="ti-x me-1"></i>Pasif</span>
+                                        <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-2"><i class="ti ti-x me-1"></i>Pasif</span>
                                     @endif
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="btn-group shadow-sm">
                                         <a href="{{ route('employees.show', $employee->id) }}" class="btn btn-sm btn-light text-info" title="Görüntüle">
-                                            <i class="ti-eye"></i>
+                                            <i class="ti ti-eye"></i>
                                         </a>
                                         <a href="{{ route('employees.edit', $employee->id) }}" class="btn btn-sm btn-light text-primary" title="Düzenle">
-                                            <i class="ti-pencil"></i>
+                                            <i class="ti ti-pencil"></i>
                                         </a>
                                         <form action="{{ route('employees.destroy', $employee->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bu çalışanı silmek istediğinize emin misiniz?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-light text-danger" style="border-top-left-radius: 0; border-bottom-left-radius: 0;" title="Sil">
-                                                <i class="ti-trash"></i>
+                                                <i class="ti ti-trash"></i>
                                             </button>
                                         </form>
                                     </div>
@@ -136,7 +136,7 @@
                                 <td colspan="7" class="text-center py-5">
                                     <div class="d-flex flex-column align-items-center justify-content-center text-muted">
                                         <div class="bg-light rounded-circle p-4 mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                                            <i class="ti-users fs-1 text-secondary"></i>
+                                            <i class="ti ti-users fs-1 text-secondary"></i>
                                         </div>
                                         <h5 class="fw-medium text-dark">Kayıtlı çalışan bulunamadı</h5>
                                         <p class="mb-0">Sisteme henüz bir çalışan eklenmemiş.</p>

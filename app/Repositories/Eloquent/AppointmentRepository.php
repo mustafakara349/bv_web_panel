@@ -17,7 +17,9 @@ class AppointmentRepository extends BaseRepository implements AppointmentReposit
     {
         $query = $this->model->with(['customer', 'employee.user', 'appointmentServices.service'])
             ->forBranch($branchId)
-            ->latest('start_at');
+            ->orderByRaw('CASE WHEN start_at >= CURRENT_DATE THEN 0 ELSE 1 END')
+            ->orderByRaw('CASE WHEN start_at >= CURRENT_DATE THEN start_at END ASC')
+            ->orderByRaw('CASE WHEN start_at < CURRENT_DATE THEN start_at END DESC');
 
         if (!empty($filters['status'])) {
             $query->where('status', $filters['status']);

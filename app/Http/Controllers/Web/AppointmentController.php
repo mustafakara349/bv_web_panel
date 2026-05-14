@@ -87,4 +87,54 @@ class AppointmentController extends Controller
 
         return back()->with('success', 'Randevu durumu güncellendi.');
     }
+
+    public function availableSlots(Request $request)
+    {
+        $request->validate([
+            'date' => 'required|date',
+            'employee_id' => 'required|exists:employees,id',
+        ]);
+
+        $date = $request->date;
+        $employeeId = $request->employee_id;
+        $branchId = session('active_branch_id', 1);
+
+        $appointments = Appointment::forBranch($branchId)
+            ->where('employee_id', $employeeId)
+            ->whereDate('start_at', $date)
+            ->whereNotIn('status', ['cancelled', 'rejected', 'no_show'])
+            ->get();
+
+        $slots = [];
+        $startTime = \Carbon\Carbon::parse($date . ' 08:00:00');
+        $endTime = \Carbon\Carbon::parse($date . ' 20:00:00');
+
+        while ($startTime < $endTime) {
+            $slotTime = $startTime->copy();
+            $isAvailable = true;
+
+            foreach ($appointments as $apt) {
+                $aptStart = \Carbon\Carbon::parse($apt->start_at);
+                $aptEnd = $apt->end_at ? \Carbon\Carbon::parse($apt->end_at) : $aptStart->copy()->addMinutes($apt->total_duration ?? 30);
+                
+                if ($slotTime >= $aptStart && $slotTime < $aptEnd) {
+                    $isAvailable = false;
+                    break;
+                }
+            }
+            
+            if ($date === today()->toDateString() && $slotTime <= now()) {
+                $isAvailable = false;
+            }
+
+            $slots[] = [
+                'time' => $slotTime->format('H:i'),
+                'is_available' => $isAvailable
+            ];
+
+            $startTime->addMinutes(30);
+        }
+
+        return response()->json($slots);
+    }
 }

@@ -9,7 +9,7 @@
                 <p class="text-muted">Tüm hizmetleri görüntüleyin ve yönetin.</p>
             </div>
             <a href="{{ route('services.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm">
-                <i class="ti-plus me-1"></i> Yeni Hizmet Ekle
+                <i class="ti ti-plus me-1"></i> Yeni Hizmet Ekle
             </a>
         </div>
     </div>
@@ -38,7 +38,7 @@
                                 <td class="ps-4 py-3">
                                     <div class="d-flex align-items-center">
                                         <div class="avatar bg-primary-subtle text-primary me-3 rounded p-2 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                                            <i class="ti-cut fs-4"></i>
+                                            <i class="ti ti-cut fs-4"></i>
                                         </div>
                                         <div>
                                             <h6 class="mb-0 fw-semibold text-dark">{{ $service->name }}</h6>
@@ -62,7 +62,7 @@
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <i class="ti-clock text-muted me-1"></i>
+                                        <i class="ti ti-clock text-muted me-1"></i>
                                         <span class="fw-medium text-dark">{{ $service->duration_minutes }} dk</span>
                                     </div>
                                 </td>
@@ -79,15 +79,15 @@
                                 <td>
                                     @if($service->gender_type == 'male')
                                         <div class="d-flex align-items-center text-primary" title="Erkek">
-                                            <i class="ti-gender-male fs-5 me-1"></i>
+                                            <i class="ti ti-gender-male fs-5 me-1"></i>
                                         </div>
                                     @elseif($service->gender_type == 'female')
                                         <div class="d-flex align-items-center text-danger" title="Kadın">
-                                            <i class="ti-gender-female fs-5 me-1"></i>
+                                            <i class="ti ti-gender-female fs-5 me-1"></i>
                                         </div>
                                     @else
                                         <div class="d-flex align-items-center text-success" title="Unisex">
-                                            <i class="ti-users fs-5 me-1"></i>
+                                            <i class="ti ti-users fs-5 me-1"></i>
                                         </div>
                                     @endif
                                 </td>
@@ -106,13 +106,13 @@
                                 <td class="text-end pe-4">
                                     <div class="btn-group shadow-sm">
                                         <a href="{{ route('services.edit', $service->id) }}" class="btn btn-sm btn-light text-primary" title="Düzenle">
-                                            <i class="ti-pencil"></i>
+                                            <i class="ti ti-pencil"></i>
                                         </a>
                                         <form action="{{ route('services.destroy', $service->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bu hizmeti silmek istediğinize emin misiniz?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-light text-danger" style="border-top-left-radius: 0; border-bottom-left-radius: 0;" title="Sil">
-                                                <i class="ti-trash"></i>
+                                                <i class="ti ti-trash"></i>
                                             </button>
                                         </form>
                                     </div>
@@ -123,7 +123,7 @@
                                 <td colspan="7" class="text-center py-5">
                                     <div class="d-flex flex-column align-items-center justify-content-center text-muted">
                                         <div class="bg-light rounded-circle p-4 mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                                            <i class="ti-cut fs-1 text-secondary"></i>
+                                            <i class="ti ti-cut fs-1 text-secondary"></i>
                                         </div>
                                         <h5 class="fw-medium text-dark">Kayıtlı hizmet bulunamadı</h5>
                                         <p class="mb-0">Sisteme henüz bir hizmet eklenmemiş. Yeni hizmet ekleyerek başlayabilirsiniz.</p>

@@ -166,7 +166,7 @@
                     <div class="mb-3">
                         <textarea name="note" class="form-control" rows="2" placeholder="Not (opsiyonel)"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-sm w-100">Güncelle</button>
+                    <button type="submit" class="btn btn-primary btn-sm w-100"><i class="ti ti-device-floppy me-1"></i> Güncelle</button>
                 </form>
             </div>
         </div>

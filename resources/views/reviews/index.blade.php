@@ -13,7 +13,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body p-5 text-center">
-                <i class="ti-star fs-1 text-primary mb-3 d-block"></i>
+                <i class="ti ti-star fs-1 text-primary mb-3 d-block"></i>
                 <h4>Değerlendirmeler Modülü</h4>
                 <p class="text-muted">Bu modül aktif olarak geliştirilmektedir.</p>
             </div>

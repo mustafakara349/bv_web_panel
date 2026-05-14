@@ -49,9 +49,17 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Tarih & Saat <span class="text-danger">*</span></label>
-                            <input type="datetime-local" name="start_at" class="form-control @error('start_at') is-invalid @enderror" required>
-                            @error('start_at')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            <label class="form-label">Tarih <span class="text-danger">*</span></label>
+                            <input type="date" id="appointmentDate" class="form-control" required min="{{ date('Y-m-d') }}">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Saat <span class="text-danger">*</span> <small class="text-muted fw-normal">(Lütfen önce berber ve tarih seçin)</small></label>
+                            <input type="hidden" name="start_at" id="startAtInput" required>
+                            @error('start_at')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                            <div id="timeSlotsContainer" class="d-flex flex-wrap gap-2 mt-2">
+                                <span class="text-muted small">Berber ve tarih seçimi bekleniyor...</span>
+                            </div>
                         </div>
 
                         <div class="col-md-6">
@@ -110,7 +118,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('selectedServices');
     const checkboxes = document.querySelectorAll('.service-check');
+    const employeeSelect = document.querySelector('select[name="employee_id"]');
+    const dateInput = document.getElementById('appointmentDate');
+    const timeSlotsContainer = document.getElementById('timeSlotsContainer');
+    const startAtInput = document.getElementById('startAtInput');
 
+    // Hizmet seçimi mantığı
     checkboxes.forEach(cb => {
         cb.addEventListener('change', () => {
             container.innerHTML = '';
@@ -128,6 +141,57 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     });
+
+    // Randevu saatleri getirme mantığı
+    function fetchAvailableSlots() {
+        const empId = employeeSelect.value;
+        const date = dateInput.value;
+
+        if (!empId || !date) {
+            timeSlotsContainer.innerHTML = '<span class="text-muted small">Berber ve tarih seçimi bekleniyor...</span>';
+            startAtInput.value = '';
+            return;
+        }
+
+        timeSlotsContainer.innerHTML = '<span class="text-muted small"><i class="ti ti-loader ti-spin me-1"></i>Saatler yükleniyor...</span>';
+        startAtInput.value = '';
+
+        fetch(`/appointments/available-slots?employee_id=${empId}&date=${date}`)
+            .then(res => res.json())
+            .then(slots => {
+                timeSlotsContainer.innerHTML = '';
+                if (slots.length === 0) {
+                    timeSlotsContainer.innerHTML = '<span class="text-danger small">Seçilen tarihte uygun saat bulunmuyor.</span>';
+                    return;
+                }
+
+                slots.forEach(slot => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = `btn btn-outline-primary px-3 py-2 ${!slot.is_available ? 'disabled opacity-50' : ''}`;
+                    btn.textContent = slot.time;
+                    if (!slot.is_available) {
+                        btn.style.cursor = 'not-allowed';
+                        btn.title = 'Dolu';
+                    } else {
+                        btn.addEventListener('click', () => {
+                            // Reset other buttons
+                            document.querySelectorAll('#timeSlotsContainer button').forEach(b => b.classList.remove('active'));
+                            btn.classList.add('active');
+                            startAtInput.value = `${date}T${slot.time}`;
+                        });
+                    }
+                    timeSlotsContainer.appendChild(btn);
+                });
+            })
+            .catch(err => {
+                console.error(err);
+                timeSlotsContainer.innerHTML = '<span class="text-danger small">Saatler getirilirken hata oluştu.</span>';
+            });
+    }
+
+    employeeSelect.addEventListener('change', fetchAvailableSlots);
+    dateInput.addEventListener('change', fetchAvailableSlots);
 });
 </script>
 @endpush

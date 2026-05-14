@@ -9,7 +9,7 @@
                 <p class="text-muted">Kayıtlı tüm müşterilerinizi görüntüleyin ve yönetin.</p>
             </div>
             <a href="{{ route('customers.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm">
-                <i class="ti-plus me-1"></i> Yeni Müşteri Ekle
+                <i class="ti ti-plus me-1"></i> Yeni Müşteri Ekle
             </a>
         </div>
     </div>
@@ -52,12 +52,12 @@
                                 <td>
                                     <div class="d-flex flex-column gap-1">
                                         <div class="d-flex align-items-center text-dark">
-                                            <i class="ti-mail text-muted me-2"></i>
+                                            <i class="ti ti-mail text-muted me-2"></i>
                                             <span class="fs-7">{{ $customer->email }}</span>
                                         </div>
                                         @if($customer->phone)
                                         <div class="d-flex align-items-center text-dark">
-                                            <i class="ti-phone text-muted me-2"></i>
+                                            <i class="ti ti-phone text-muted me-2"></i>
                                             <span class="fs-7">{{ $customer->phone }}</span>
                                         </div>
                                         @endif
@@ -65,42 +65,42 @@
                                 </td>
                                 <td>
                                     @if($customer->gender == App\Enums\Gender::Male)
-                                        <span class="text-primary d-flex align-items-center"><i class="ti-gender-male me-1"></i> Erkek</span>
+                                        <span class="text-primary d-flex align-items-center"><i class="ti ti-gender-male me-1"></i> Erkek</span>
                                     @elseif($customer->gender == App\Enums\Gender::Female)
-                                        <span class="text-danger d-flex align-items-center"><i class="ti-gender-female me-1"></i> Kadın</span>
+                                        <span class="text-danger d-flex align-items-center"><i class="ti ti-gender-female me-1"></i> Kadın</span>
                                     @else
-                                        <span class="text-success d-flex align-items-center"><i class="ti-users me-1"></i> Diğer/Belirtilmemiş</span>
+                                        <span class="text-success d-flex align-items-center"><i class="ti ti-users me-1"></i> Diğer/Belirtilmemiş</span>
                                     @endif
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="bg-secondary-subtle text-secondary rounded-pill px-3 py-1 fw-semibold d-flex align-items-center">
-                                            <i class="ti-calendar me-2"></i> {{ $customer->appointments_count }}
+                                            <i class="ti ti-calendar me-2"></i> {{ $customer->appointments_count }}
                                         </div>
                                     </div>
                                 </td>
                                 <td>
                                     @if($customer->status == App\Enums\UserStatus::Active)
-                                        <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2"><i class="ti-check-circle me-1"></i>Aktif</span>
+                                        <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2"><i class="ti ti-check-circle me-1"></i>Aktif</span>
                                     @elseif($customer->status == App\Enums\UserStatus::Inactive)
-                                        <span class="badge bg-warning-subtle text-warning rounded-pill px-3 py-2"><i class="ti-na me-1"></i>Pasif</span>
+                                        <span class="badge bg-warning-subtle text-warning rounded-pill px-3 py-2"><i class="ti ti-na me-1"></i>Pasif</span>
                                     @elseif($customer->status == App\Enums\UserStatus::Blocked)
-                                        <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-2"><i class="ti-ban me-1"></i>Engelli</span>
+                                        <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-2"><i class="ti ti-ban me-1"></i>Engelli</span>
                                     @endif
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="btn-group shadow-sm">
                                         <a href="{{ route('customers.show', $customer->id) }}" class="btn btn-sm btn-light text-info" title="Görüntüle">
-                                            <i class="ti-eye"></i>
+                                            <i class="ti ti-eye"></i>
                                         </a>
                                         <a href="{{ route('customers.edit', $customer->id) }}" class="btn btn-sm btn-light text-primary" title="Düzenle">
-                                            <i class="ti-pencil"></i>
+                                            <i class="ti ti-pencil"></i>
                                         </a>
                                         <form action="{{ route('customers.destroy', $customer->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bu müşteriyi silmek istediğinize emin misiniz?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-light text-danger" style="border-top-left-radius: 0; border-bottom-left-radius: 0;" title="Sil">
-                                                <i class="ti-trash"></i>
+                                                <i class="ti ti-trash"></i>
                                             </button>
                                         </form>
                                     </div>
@@ -111,7 +111,7 @@
                                 <td colspan="6" class="text-center py-5">
                                     <div class="d-flex flex-column align-items-center justify-content-center text-muted">
                                         <div class="bg-light rounded-circle p-4 mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                                            <i class="ti-user-circle fs-1 text-secondary"></i>
+                                            <i class="ti ti-user-circle fs-1 text-secondary"></i>
                                         </div>
                                         <h5 class="fw-medium text-dark">Kayıtlı müşteri bulunamadı</h5>
                                         <p class="mb-0">Sisteme henüz bir müşteri kayıt olmamış.</p>

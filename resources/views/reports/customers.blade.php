@@ -9,7 +9,7 @@
                 <p class="text-muted">En sadık 20 müşteriniz ve geliş istatistikleri.</p>
             </div>
             <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary">
-                <i class="ti-arrow-left me-1"></i> Geri Dön
+                <i class="ti ti-arrow-left me-1"></i> Geri Dön
             </a>
         </div>
     </div>
