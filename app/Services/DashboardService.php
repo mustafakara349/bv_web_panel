@@ -1,0 +1,63 @@
+<?php
+
+namespace App\Services;
+
+use App\Repositories\Contracts\DashboardRepositoryInterface;
+use Illuminate\Support\Facades\Cache;
+
+class DashboardService
+{
+    public function __construct(
+        private DashboardRepositoryInterface $dashboardRepo
+    ) {}
+
+    public function getWidgetData(int $branchId): array
+    {
+        return Cache::remember("dashboard.widgets.{$branchId}", 300, fn () => [
+            'revenue' => $this->dashboardRepo->getRevenueStats($branchId),
+            'appointments' => $this->dashboardRepo->getAppointmentStats($branchId),
+            'financial' => $this->dashboardRepo->getFinancialOverview($branchId),
+            'customers' => $this->dashboardRepo->getCustomerStats($branchId),
+        ]);
+    }
+
+    public function getBarberPerformance(int $branchId): array
+    {
+        return Cache::remember("dashboard.barbers.{$branchId}", 600, fn () =>
+            $this->dashboardRepo->getBarberPerformance($branchId)
+        );
+    }
+
+    public function getTopServices(int $branchId, int $limit = 5): array
+    {
+        return Cache::remember("dashboard.services.{$branchId}", 600, fn () =>
+            $this->dashboardRepo->getTopServices($branchId, $limit)
+        );
+    }
+
+    public function getRevenueChart(int $branchId): array
+    {
+        return Cache::remember("dashboard.chart.{$branchId}.all_periods", 600, fn () => [
+            'year' => $this->dashboardRepo->getRevenueChart($branchId, 'year'),
+            'month' => $this->dashboardRepo->getRevenueChart($branchId, 'month'),
+            'day' => $this->dashboardRepo->getRevenueChart($branchId, 'day'),
+        ]);
+    }
+
+    public function getHourlyDensity(int $branchId, string $date): array
+    {
+        return Cache::remember("dashboard.hourly.{$branchId}.{$date}", 300, fn () =>
+            $this->dashboardRepo->getHourlyDensity($branchId, $date)
+        );
+    }
+
+    public function getTodayAppointments(int $branchId)
+    {
+        return \App\Models\Appointment::forBranch($branchId)
+            ->whereDate('start_at', today())
+            ->with(['customer', 'employee.user', 'appointmentServices.service'])
+            ->orderByRaw('CASE WHEN start_at >= NOW() THEN 0 ELSE 1 END')
+            ->orderBy('start_at', 'asc')
+            ->get();
+    }
+}
