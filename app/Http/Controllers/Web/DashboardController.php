@@ -24,6 +24,18 @@ class DashboardController extends Controller
         return view('dashboard.index', compact('widgets', 'barbers', 'topServices', 'revenueChart', 'todayAppointments', 'pendingAppointments'));
     }
 
+    public function appointmentStats(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        $branchId = $this->getActiveBranchId();
+        $period = $request->input('period', 'month');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $stats = $this->dashboardService->getFilteredAppointmentStats($branchId, $period, $startDate, $endDate);
+
+        return response()->json($stats);
+    }
+
     private function getActiveBranchId(): int
     {
         return session('active_branch_id', 1);

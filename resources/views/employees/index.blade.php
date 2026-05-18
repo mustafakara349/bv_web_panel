@@ -9,10 +9,14 @@
                 <p class="text-muted">Personel listesini görüntüleyin ve yönetin.</p>
             </div>
             <div class="d-flex align-items-center gap-3">
-                <div class="btn-group shadow-sm">
-                    <a href="{{ route('employees.index') }}" class="btn {{ request('role') !== 'barber' ? 'btn-primary' : 'btn-outline-primary' }}"><i class="ti ti-users me-1"></i> Tümü</a>
-                    <a href="{{ route('employees.index', ['role' => 'barber']) }}" class="btn {{ request('role') === 'barber' ? 'btn-primary' : 'btn-outline-primary' }}"><i class="ti ti-cut me-1"></i> Sadece Berberler</a>
-                </div>
+                <form action="{{ route('employees.index') }}" method="GET" class="d-inline-block shadow-sm" id="roleFilterForm">
+                    <select name="role_id" class="form-select border-0" onchange="document.getElementById('roleFilterForm').submit()">
+                        <option value="">Tüm Unvanlar</option>
+                        @foreach($roles as $role)
+                            <option value="{{ $role->id }}" {{ request('role_id') == $role->id ? 'selected' : '' }}>{{ $role->name }}</option>
+                        @endforeach
+                    </select>
+                </form>
                 <a href="{{ route('employees.create') }}" class="btn btn-success rounded-pill px-4 shadow-sm">
                     <i class="ti ti-plus me-1"></i> Yeni Çalışan Ekle
                 </a>

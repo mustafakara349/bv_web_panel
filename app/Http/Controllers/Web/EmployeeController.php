@@ -16,14 +16,15 @@ class EmployeeController extends Controller
     {
         $query = Employee::with(['user.role'])->withCount('appointments');
 
-        if ($request->has('role') && $request->role === 'barber') {
-            $query->whereHas('user.role', function($q) {
-                $q->where('slug', 'barber');
+        if ($request->has('role_id') && $request->role_id != '') {
+            $query->whereHas('user', function($q) use ($request) {
+                $q->where('role_id', $request->role_id);
             });
         }
 
         $employees = $query->paginate(15);
-        return view('employees.index', compact('employees'));
+        $roles = Role::all();
+        return view('employees.index', compact('employees', 'roles'));
     }
 
     public function create()

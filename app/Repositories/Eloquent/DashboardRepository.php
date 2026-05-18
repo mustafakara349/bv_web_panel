@@ -18,13 +18,13 @@ class DashboardRepository implements DashboardRepositoryInterface
 {
     public function getRevenueStats(int $branchId, string $period = 'month'): array
     {
-        $base = Appointment::forBranch($branchId)->completed();
+        $base = Transaction::forBranch($branchId)->income();
 
         return [
-            'daily' => (clone $base)->whereDate('completed_at', today())->sum('total_price'),
-            'weekly' => (clone $base)->whereBetween('completed_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('total_price'),
-            'monthly' => (clone $base)->whereMonth('completed_at', now()->month)->whereYear('completed_at', now()->year)->sum('total_price'),
-            'yearly' => (clone $base)->whereYear('completed_at', now()->year)->sum('total_price'),
+            'daily' => round((clone $base)->whereDate('transaction_date', today())->sum('amount'), 2),
+            'weekly' => round((clone $base)->whereBetween('transaction_date', [now()->startOfWeek(), now()->endOfWeek()])->sum('amount'), 2),
+            'monthly' => round((clone $base)->whereMonth('transaction_date', now()->month)->whereYear('transaction_date', now()->year)->sum('amount'), 2),
+            'yearly' => round((clone $base)->whereYear('transaction_date', now()->year)->sum('amount'), 2),
         ];
     }
 
@@ -49,9 +49,41 @@ class DashboardRepository implements DashboardRepositoryInterface
         ];
     }
 
+    public function getFilteredAppointmentStats(int $branchId, string $period, ?string $startDate = null, ?string $endDate = null): array
+    {
+        $query = Appointment::forBranch($branchId);
+
+        if ($period === 'today') {
+            $query->whereDate('start_at', today());
+        } elseif ($period === 'month') {
+            $query->whereMonth('start_at', now()->month)->whereYear('start_at', now()->year);
+        } elseif ($period === 'year') {
+            $query->whereYear('start_at', now()->year);
+        } elseif ($period === 'custom' && $startDate && $endDate) {
+            $query->whereBetween('start_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+        }
+
+        $total = (clone $query)->count();
+        $cancelled = (clone $query)->where('status', AppointmentStatus::Cancelled)->count();
+        $noShow = (clone $query)->where('status', AppointmentStatus::NoShow)->count();
+
+        $avgSpending = (clone $query)->where('status', AppointmentStatus::Completed)->avg('total_price');
+
+        return [
+            'total' => $total,
+            'cancelled' => $cancelled,
+            'no_show' => $noShow,
+            'cancellation_rate' => $total > 0 ? round(($cancelled / $total) * 100, 1) : 0,
+            'avg_spending' => round($avgSpending ?? 0, 2),
+        ];
+    }
+
     public function getBarberPerformance(int $branchId): array
     {
-        return Employee::with('user')
+        return Employee::with('user.role')
+            ->whereHas('user.role', function($q) {
+                $q->where('slug', 'barber');
+            })
             ->forBranch($branchId)
             ->active()
             ->withCount(['appointments as completed_appointments_count' => function ($q) {
@@ -80,17 +112,21 @@ class DashboardRepository implements DashboardRepositoryInterface
 
     public function getTopServices(int $branchId, int $limit = 5): array
     {
-        return DB::table('appointment_services')
-            ->join('services', 'appointment_services.service_id', '=', 'services.id')
-            ->join('appointments', 'appointment_services.appointment_id', '=', 'appointments.id')
-            ->where('appointments.branch_id', $branchId)
-            ->where('appointments.status', AppointmentStatus::Completed->value)
-            ->whereMonth('appointments.start_at', now()->month)
+        return DB::table('services')
+            ->leftJoin('appointment_services', 'services.id', '=', 'appointment_services.service_id')
+            ->leftJoin('appointments', function($join) use ($branchId) {
+                $join->on('appointment_services.appointment_id', '=', 'appointments.id')
+                     ->where('appointments.branch_id', '=', $branchId)
+                     ->where('appointments.status', '=', AppointmentStatus::Completed->value);
+            })
+            ->where('services.branch_id', $branchId)
+            ->where('services.is_popular', true)
+            ->where('services.is_active', true)
             ->select(
                 'services.id',
                 'services.name',
-                DB::raw('COUNT(*) as usage_count'),
-                DB::raw('SUM(appointment_services.total_price) as total_revenue')
+                DB::raw('COUNT(appointments.id) as usage_count'),
+                DB::raw('COALESCE(SUM(appointment_services.total_price), 0) as total_revenue')
             )
             ->groupBy('services.id', 'services.name')
             ->orderByDesc('usage_count')
@@ -123,11 +159,29 @@ class DashboardRepository implements DashboardRepositoryInterface
             ->having('visit_count', '>=', 3)
             ->count();
 
+        $genders = User::customers()
+            ->select('gender', DB::raw('count(*) as count'))
+            ->groupBy('gender')
+            ->pluck('count', 'gender')
+            ->toArray();
+
+        $male = $genders['male'] ?? 0;
+        $female = $genders['female'] ?? 0;
+        $other = $genders['other'] ?? 0;
+        // if null is returned, we can ignore or add to other.
+        $nullCount = $genders[''] ?? 0;
+        $other += $nullCount;
+
         return [
             'total' => $totalCustomers,
             'new_this_month' => $newCustomers,
             'loyal' => $loyalCustomers,
             'avg_spending' => round($avgSpending ?? 0, 2),
+            'genders' => [
+                'male' => $male,
+                'female' => $female,
+                'other' => $other,
+            ],
         ];
     }
 
@@ -158,11 +212,11 @@ class DashboardRepository implements DashboardRepositoryInterface
     {
         if ($period === 'day') {
             return collect(range(8, 22))->map(function ($hour) use ($branchId) {
-                $revenue = Appointment::forBranch($branchId)
-                    ->completed()
-                    ->whereDate('completed_at', today())
-                    ->whereRaw('HOUR(completed_at) = ?', [$hour])
-                    ->sum('total_price');
+                $revenue = Transaction::forBranch($branchId)
+                    ->income()
+                    ->whereDate('transaction_date', today())
+                    ->whereRaw('HOUR(transaction_date) = ?', [$hour])
+                    ->sum('amount');
 
                 return [
                     'month' => null,
@@ -174,10 +228,10 @@ class DashboardRepository implements DashboardRepositoryInterface
 
         if ($period === 'month') {
             return collect(range(1, now()->daysInMonth))->map(function ($day) use ($branchId) {
-                $revenue = Appointment::forBranch($branchId)
-                    ->completed()
-                    ->whereDate('completed_at', now()->setDay($day)->toDateString())
-                    ->sum('total_price');
+                $revenue = Transaction::forBranch($branchId)
+                    ->income()
+                    ->whereDate('transaction_date', now()->setDay($day)->toDateString())
+                    ->sum('amount');
 
                 return [
                     'month' => now()->month,
@@ -188,11 +242,11 @@ class DashboardRepository implements DashboardRepositoryInterface
         }
 
         $months = collect(range(1, 12))->map(function ($month) use ($branchId) {
-            $revenue = Appointment::forBranch($branchId)
-                ->completed()
-                ->whereMonth('completed_at', $month)
-                ->whereYear('completed_at', now()->year)
-                ->sum('total_price');
+            $revenue = Transaction::forBranch($branchId)
+                ->income()
+                ->whereMonth('transaction_date', $month)
+                ->whereYear('transaction_date', now()->year)
+                ->sum('amount');
 
             return [
                 'month' => $month,
