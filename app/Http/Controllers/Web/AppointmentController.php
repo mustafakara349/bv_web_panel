@@ -137,4 +137,147 @@ class AppointmentController extends Controller
 
         return response()->json($slots);
     }
+
+    public function storePayment(Request $request, Appointment $appointment): RedirectResponse
+    {
+        $validated = $request->validate([
+            'amount' => 'required|numeric|min:0.01',
+            'payment_method' => 'required|string|in:cash,credit_card,bank_transfer,online',
+            'paid_at' => 'required|date',
+            'transaction_reference' => 'nullable|string|max:100',
+        ]);
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($appointment, $validated) {
+            // 1. Create the Payment
+            \App\Models\Payment::create([
+                'appointment_id' => $appointment->id,
+                'amount' => $validated['amount'],
+                'payment_method' => $validated['payment_method'],
+                'transaction_reference' => $validated['transaction_reference'],
+                'paid_at' => $validated['paid_at'],
+            ]);
+
+            // 2. Re-calculate total paid amount
+            $totalPaid = $appointment->payments()->sum('amount');
+
+            // 3. Update appointment status & method
+            $paymentStatus = \App\Enums\PaymentStatus::Unpaid;
+            if ($totalPaid >= $appointment->total_price) {
+                $paymentStatus = \App\Enums\PaymentStatus::Paid;
+            } elseif ($totalPaid > 0) {
+                $paymentStatus = \App\Enums\PaymentStatus::Partial;
+            }
+
+            $appointment->update([
+                'payment_status' => $paymentStatus,
+                'payment_method' => $validated['payment_method'],
+            ]);
+
+            // 4. Automatically create Transaction
+            \App\Models\Transaction::create([
+                'branch_id' => $appointment->branch_id,
+                'created_by' => auth()->id(),
+                'transaction_type' => \App\Enums\TransactionType::Income,
+                'amount' => $validated['amount'],
+                'currency' => 'TRY',
+                'payment_method' => $validated['payment_method'],
+                'description' => 'Randevu Ödemesi - #' . $appointment->appointment_code . ' (' . ($appointment->customer?->full_name ?? 'Müşteri') . ')',
+                'transaction_date' => $validated['paid_at'],
+                'appointment_id' => $appointment->id,
+            ]);
+        });
+
+        return back()->with('success', 'Ödeme başarıyla kaydedildi.');
+    }
+
+    public function destroyPayment(Appointment $appointment, \App\Models\Payment $payment): RedirectResponse
+    {
+        \Illuminate\Support\Facades\DB::transaction(function () use ($appointment, $payment) {
+            // 1. Delete associated transaction from transactions table
+            \App\Models\Transaction::where('appointment_id', $appointment->id)
+                ->where('amount', $payment->amount)
+                ->where('transaction_type', \App\Enums\TransactionType::Income)
+                ->first()
+                ?->delete();
+
+            // 2. Delete the payment record itself
+            $payment->delete();
+
+            // 3. Re-calculate total paid amount and update appointment
+            $totalPaid = $appointment->payments()->sum('amount');
+            $paymentStatus = \App\Enums\PaymentStatus::Unpaid;
+            if ($totalPaid >= $appointment->total_price) {
+                $paymentStatus = \App\Enums\PaymentStatus::Paid;
+            } elseif ($totalPaid > 0) {
+                $paymentStatus = \App\Enums\PaymentStatus::Partial;
+            }
+
+            $appointment->update([
+                'payment_status' => $paymentStatus,
+            ]);
+        });
+
+        return back()->with('success', 'Ödeme kaydı ve ilişkili kasa işlemi silindi.');
+    }
+
+    public function completeWithPayment(Request $request, Appointment $appointment): RedirectResponse
+    {
+        $validated = $request->validate([
+            'amount' => 'required|numeric|min:0.01',
+            'payment_method' => 'required|string|in:cash,credit_card,bank_transfer,online',
+            'paid_at' => 'required|date',
+            'transaction_reference' => 'nullable|string|max:100',
+            'note' => 'nullable|string|max:250',
+        ]);
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($appointment, $validated) {
+            // 1. Update status to Completed using AppointmentService
+            $this->appointmentService->updateStatus(
+                $appointment,
+                \App\Enums\AppointmentStatus::Completed,
+                auth()->id(),
+                $validated['note']
+            );
+
+            // 2. Create the Payment
+            \App\Models\Payment::create([
+                'appointment_id' => $appointment->id,
+                'amount' => $validated['amount'],
+                'payment_method' => $validated['payment_method'],
+                'transaction_reference' => $validated['transaction_reference'],
+                'paid_at' => $validated['paid_at'],
+            ]);
+
+            // 3. Re-calculate total paid amount
+            $totalPaid = $appointment->payments()->sum('amount');
+
+            // 4. Update appointment payment status & method
+            $paymentStatus = \App\Enums\PaymentStatus::Unpaid;
+            if ($totalPaid >= $appointment->total_price) {
+                $paymentStatus = \App\Enums\PaymentStatus::Paid;
+            } elseif ($totalPaid > 0) {
+                $paymentStatus = \App\Enums\PaymentStatus::Partial;
+            }
+
+            $appointment->update([
+                'payment_status' => $paymentStatus,
+                'payment_method' => $validated['payment_method'],
+            ]);
+
+            // 5. Automatically create Transaction (Ciro/Income)
+            \App\Models\Transaction::create([
+                'branch_id' => $appointment->branch_id,
+                'created_by' => auth()->id(),
+                'transaction_type' => \App\Enums\TransactionType::Income,
+                'amount' => $validated['amount'],
+                'currency' => 'TRY',
+                'payment_method' => $validated['payment_method'],
+                'description' => 'Randevu Ödemesi - #' . $appointment->appointment_code . ' (' . ($appointment->customer?->full_name ?? 'Müşteri') . ')',
+                'transaction_date' => $validated['paid_at'],
+                'appointment_id' => $appointment->id,
+            ]);
+        });
+
+        return back()->with('success', 'Randevu başarıyla tamamlandı ve ödemesi kaydedildi.');
+    }
 }

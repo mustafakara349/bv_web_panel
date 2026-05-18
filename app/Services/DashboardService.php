@@ -88,4 +88,15 @@ class DashboardService
             ->orderBy('start_at', 'asc')
             ->get();
     }
+
+    public function getAwaitingActionAppointments(int $branchId)
+    {
+        // Fetch any past appointments (including today's past slots) that are still confirmed or in_progress
+        return \App\Models\Appointment::forBranch($branchId)
+            ->where('start_at', '<', now())
+            ->whereIn('status', ['confirmed', 'in_progress'])
+            ->with(['customer', 'employee.user', 'appointmentServices.service'])
+            ->orderBy('start_at', 'desc')
+            ->get();
+    }
 }

@@ -21,6 +21,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/appointments/available-slots', [AppointmentController::class, 'availableSlots'])->name('appointments.available-slots');
     Route::resource('appointments', AppointmentController::class)->except(['destroy']);
     Route::patch('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.update-status');
+    Route::post('/appointments/{appointment}/payments', [AppointmentController::class, 'storePayment'])->name('appointments.payments.store');
+    Route::delete('/appointments/{appointment}/payments/{payment}', [AppointmentController::class, 'destroyPayment'])->name('appointments.payments.destroy');
+    Route::post('/appointments/{appointment}/complete-payment', [AppointmentController::class, 'completeWithPayment'])->name('appointments.complete-payment');
 
     Route::resource('employees', App\Http\Controllers\Web\EmployeeController::class);
     Route::resource('customers', App\Http\Controllers\Web\CustomerController::class);

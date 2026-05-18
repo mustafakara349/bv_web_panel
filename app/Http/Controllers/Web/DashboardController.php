@@ -20,8 +20,9 @@ class DashboardController extends Controller
         $revenueChart = $this->dashboardService->getRevenueChart($branchId);
         $todayAppointments = $this->dashboardService->getTodayAppointments($branchId);
         $pendingAppointments = $this->dashboardService->getPendingAppointments($branchId);
+        $awaitingActionAppointments = $this->dashboardService->getAwaitingActionAppointments($branchId);
 
-        return view('dashboard.index', compact('widgets', 'barbers', 'topServices', 'revenueChart', 'todayAppointments', 'pendingAppointments'));
+        return view('dashboard.index', compact('widgets', 'barbers', 'topServices', 'revenueChart', 'todayAppointments', 'pendingAppointments', 'awaitingActionAppointments'));
     }
 
     public function appointmentStats(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
