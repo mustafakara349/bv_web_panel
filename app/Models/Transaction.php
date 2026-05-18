@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Transaction extends Model
 {
     protected $fillable = [
-        'branch_id', 'appointment_id', 'created_by',
+        'branch_id', 'appointment_id', 'expense_id', 'created_by',
         'transaction_type', 'amount', 'currency',
         'payment_method', 'description', 'transaction_date',
     ];
@@ -33,6 +33,11 @@ class Transaction extends Model
     public function appointment(): BelongsTo
     {
         return $this->belongsTo(Appointment::class);
+    }
+
+    public function expense(): BelongsTo
+    {
+        return $this->belongsTo(Expense::class);
     }
 
     public function createdBy(): BelongsTo

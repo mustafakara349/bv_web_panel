@@ -12,7 +12,8 @@ class ServiceController extends Controller
 {
     public function index()
     {
-        $services = Service::with('category')->paginate(15);
+        $branchId = session('active_branch_id', 1);
+        $services = Service::where('branch_id', $branchId)->with('category')->paginate(15);
         return view('services.index', compact('services'));
     }
 
@@ -50,12 +51,20 @@ class ServiceController extends Controller
 
     public function edit(Service $service)
     {
+        if ($service->branch_id !== session('active_branch_id', 1)) {
+            abort(403, 'Yetkisiz işlem.');
+        }
+
         $categories = ServiceCategory::all();
         return view('services.edit', compact('service', 'categories'));
     }
 
     public function update(Request $request, Service $service)
     {
+        if ($service->branch_id !== session('active_branch_id', 1)) {
+            abort(403, 'Yetkisiz işlem.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:150',
             'category_id' => 'nullable|exists:service_categories,id',
@@ -82,12 +91,20 @@ class ServiceController extends Controller
 
     public function destroy(Service $service)
     {
+        if ($service->branch_id !== session('active_branch_id', 1)) {
+            abort(403, 'Yetkisiz işlem.');
+        }
+
         $service->delete();
         return redirect()->route('services.index')->with('success', 'Hizmet silindi.');
     }
 
     public function toggleStatus(Service $service)
     {
+        if ($service->branch_id !== session('active_branch_id', 1)) {
+            return response()->json(['success' => false, 'message' => 'Yetkisiz işlem.'], 403);
+        }
+
         $service->update(['is_active' => !$service->is_active]);
         return response()->json(['success' => true, 'is_active' => $service->is_active]);
     }

@@ -36,8 +36,56 @@ class AppointmentController extends Controller
 
         $employees = Employee::forBranch($branchId)->active()->with('user')->get();
         $statuses = AppointmentStatus::cases();
+        $activeBranch = \App\Models\Branch::find($branchId);
 
-        return view('appointments.index', compact('appointments', 'employees', 'statuses'));
+        return view('appointments.index', compact('appointments', 'employees', 'statuses', 'activeBranch'));
+    }
+
+    public function events(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'start' => 'required|date',
+            'end' => 'required|date',
+        ]);
+
+        $branchId = session('active_branch_id', 1);
+
+        $appointments = Appointment::forBranch($branchId)
+            ->whereBetween('start_at', [$request->start, $request->end])
+            ->with(['customer', 'employee.user', 'appointmentServices.service'])
+            ->get();
+
+        $events = $appointments->map(function ($apt) {
+            $customerName = $apt->customer->full_name ?? 'Bilinmeyen Müşteri';
+            $barberName = $apt->employee->user->full_name ?? '-';
+            $servicesStr = $apt->appointmentServices->map(fn($as) => $as->service?->name)->implode(', ');
+            
+            // Map status to custom colors
+            $color = '#3b82f6'; // default blue (confirmed)
+            if ($apt->status->value === 'completed') {
+                $color = '#10b981'; // green
+            } elseif ($apt->status->value === 'pending') {
+                $color = '#f59e0b'; // warning orange
+            } elseif ($apt->status->value === 'cancelled' || $apt->status->value === 'rejected') {
+                $color = '#ef4444'; // red
+            } elseif ($apt->status->value === 'no_show') {
+                $color = '#6b7280'; // gray
+            }
+
+            return [
+                'id' => $apt->id,
+                'title' => $customerName . ' (' . $barberName . ')',
+                'description' => $servicesStr,
+                'start' => $apt->start_at->toIso8601String(),
+                'end' => $apt->end_at ? $apt->end_at->toIso8601String() : $apt->start_at->copy()->addMinutes($apt->total_duration ?? 30)->toIso8601String(),
+                'backgroundColor' => $color,
+                'borderColor' => $color,
+                'textColor' => '#ffffff',
+                'url' => route('appointments.show', $apt),
+            ];
+        });
+
+        return response()->json($events);
     }
 
     public function create(): View
@@ -63,6 +111,10 @@ class AppointmentController extends Controller
 
     public function show(Appointment $appointment): View
     {
+        if ($appointment->branch_id !== session('active_branch_id', 1)) {
+            abort(403, 'Yetkisiz işlem.');
+        }
+
         $appointment->load([
             'customer', 'employee.user', 'branch',
             'appointmentServices.service', 'payments',
@@ -74,6 +126,10 @@ class AppointmentController extends Controller
 
     public function updateStatus(Request $request, Appointment $appointment): RedirectResponse
     {
+        if ($appointment->branch_id !== session('active_branch_id', 1)) {
+            abort(403, 'Yetkisiz işlem.');
+        }
+
         $request->validate(['status' => 'required|string']);
 
         $status = AppointmentStatus::from($request->status);
@@ -105,9 +161,27 @@ class AppointmentController extends Controller
             ->whereNotIn('status', ['cancelled', 'rejected', 'no_show'])
             ->get();
 
+        // Dynamically fetch branch working hours
+        $branch = \App\Models\Branch::find($branchId);
+        $openTimeStr = '08:00:00';
+        $closeTimeStr = '20:00:00';
+
+        if ($branch) {
+            if ($branch->opening_time) {
+                $openTimeStr = $branch->opening_time instanceof \DateTimeInterface 
+                    ? $branch->opening_time->format('H:i:s') 
+                    : (string) $branch->opening_time;
+            }
+            if ($branch->closing_time) {
+                $closeTimeStr = $branch->closing_time instanceof \DateTimeInterface 
+                    ? $branch->closing_time->format('H:i:s') 
+                    : (string) $branch->closing_time;
+            }
+        }
+
         $slots = [];
-        $startTime = \Carbon\Carbon::parse($date . ' 08:00:00');
-        $endTime = \Carbon\Carbon::parse($date . ' 20:00:00');
+        $startTime = \Carbon\Carbon::parse($date . ' ' . $openTimeStr);
+        $endTime = \Carbon\Carbon::parse($date . ' ' . $closeTimeStr);
 
         while ($startTime < $endTime) {
             $slotTime = $startTime->copy();
@@ -140,6 +214,10 @@ class AppointmentController extends Controller
 
     public function storePayment(Request $request, Appointment $appointment): RedirectResponse
     {
+        if ($appointment->branch_id !== session('active_branch_id', 1)) {
+            abort(403, 'Yetkisiz işlem.');
+        }
+
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0.01',
             'payment_method' => 'required|string|in:cash,credit_card,bank_transfer,online',
@@ -192,6 +270,10 @@ class AppointmentController extends Controller
 
     public function destroyPayment(Appointment $appointment, \App\Models\Payment $payment): RedirectResponse
     {
+        if ($appointment->branch_id !== session('active_branch_id', 1)) {
+            abort(403, 'Yetkisiz işlem.');
+        }
+
         \Illuminate\Support\Facades\DB::transaction(function () use ($appointment, $payment) {
             // 1. Delete associated transaction from transactions table
             \App\Models\Transaction::where('appointment_id', $appointment->id)
@@ -222,6 +304,10 @@ class AppointmentController extends Controller
 
     public function completeWithPayment(Request $request, Appointment $appointment): RedirectResponse
     {
+        if ($appointment->branch_id !== session('active_branch_id', 1)) {
+            abort(403, 'Yetkisiz işlem.');
+        }
+
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0.01',
             'payment_method' => 'required|string|in:cash,credit_card,bank_transfer,online',

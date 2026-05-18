@@ -14,7 +14,8 @@ class EmployeeController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Employee::with(['user.role'])->withCount('appointments');
+        $branchId = session('active_branch_id', 1);
+        $query = Employee::forBranch($branchId)->with(['user.role'])->withCount('appointments');
 
         if ($request->has('role_id') && $request->role_id != '') {
             $query->whereHas('user', function($q) use ($request) {
@@ -76,6 +77,10 @@ class EmployeeController extends Controller
 
     public function show(Employee $employee)
     {
+        if ($employee->branch_id !== session('active_branch_id', 1)) {
+            abort(403, 'Yetkisiz işlem.');
+        }
+
         $employee->load(['user.role', 'appointments.customer', 'appointments.appointmentServices.service', 'reviews']);
         
         $totalRevenue = $employee->appointments()->where('status', 'completed')->sum('total_price');
@@ -86,6 +91,10 @@ class EmployeeController extends Controller
 
     public function edit(Employee $employee)
     {
+        if ($employee->branch_id !== session('active_branch_id', 1)) {
+            abort(403, 'Yetkisiz işlem.');
+        }
+
         $roles = Role::all();
         $employee->load('user');
         return view('employees.edit', compact('employee', 'roles'));
@@ -93,6 +102,10 @@ class EmployeeController extends Controller
 
     public function update(Request $request, Employee $employee)
     {
+        if ($employee->branch_id !== session('active_branch_id', 1)) {
+            abort(403, 'Yetkisiz işlem.');
+        }
+
         $validated = $request->validate([
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
@@ -130,6 +143,10 @@ class EmployeeController extends Controller
 
     public function destroy(Employee $employee)
     {
+        if ($employee->branch_id !== session('active_branch_id', 1)) {
+            abort(403, 'Yetkisiz işlem.');
+        }
+
         $employee->delete();
         return redirect()->route('employees.index')->with('success', 'Çalışan silindi.');
     }

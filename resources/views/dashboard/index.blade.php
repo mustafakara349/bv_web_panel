@@ -247,13 +247,15 @@
         <div class="col-12 col-lg-8">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center bg-transparent px-4 py-3">
-                    <h3 class="h5 mb-0">Gelir Grafiği</h3>
+                    <h3 class="h5 mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                        <i class="ti ti-chart-bar text-primary fs-4"></i> Gelir Grafiği
+                    </h3>
                     <div>
-                        <select class="form-select form-select-sm" id="revenueChartPeriod">
-                            <option value="year" selected>Bu Yıl</option>
-                            <option value="month">Bu Ay</option>
-                            <option value="day">Bugün</option>
-                        </select>
+                        <div class="btn-group p-1 bg-light rounded-pill border border-light" role="group">
+                            <button type="button" class="btn btn-sm rounded-pill px-3 py-1.5 fw-bold border-0 btn-period" data-period="day" style="font-size: 12px; transition: all 0.2s ease;">Bugün</button>
+                            <button type="button" class="btn btn-sm rounded-pill px-3 py-1.5 fw-bold border-0 btn-period active bg-white text-dark shadow-sm" data-period="month" style="font-size: 12px; transition: all 0.2s ease;">Bu Ay</button>
+                            <button type="button" class="btn btn-sm rounded-pill px-3 py-1.5 fw-bold border-0 btn-period" data-period="year" style="font-size: 12px; transition: all 0.2s ease;">Bu Yıl</button>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body p-4">
@@ -766,7 +768,7 @@
             // Render Revenue Chart
             try {
                 if (document.getElementById('revenueChart') && typeof ApexCharts !== 'undefined') {
-                    let currentPeriod = 'year';
+                    let currentPeriod = 'month';
 
                     const options = {
                         chart: { 
@@ -777,10 +779,10 @@
                             dropShadow: {
                                 enabled: true,
                                 color: '#E66239',
-                                top: 8,
+                                top: 12,
                                 left: 0,
-                                blur: 10,
-                                opacity: 0.12
+                                blur: 8,
+                                opacity: 0.18
                             }
                         },
                         colors: ['#E66239'],
@@ -841,15 +843,27 @@
                     const chart = new ApexCharts(document.querySelector('#revenueChart'), options);
                     chart.render();
 
-                    document.getElementById('revenueChartPeriod').addEventListener('change', function (e) {
-                        currentPeriod = e.target.value;
-                        chart.updateOptions({
-                            xaxis: { categories: chartDataAll[currentPeriod].map(d => d.label) }
+                    // Add click event listeners to custom period buttons
+                    document.querySelectorAll('.btn-period').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            // Toggle active styling
+                            document.querySelectorAll('.btn-period').forEach(b => {
+                                b.classList.remove('active', 'bg-white', 'text-dark', 'shadow-sm');
+                            });
+                            this.classList.add('active', 'bg-white', 'text-dark', 'shadow-sm');
+
+                            // Update chart period
+                            currentPeriod = this.getAttribute('data-period');
+
+                            // Update chart view
+                            chart.updateOptions({
+                                xaxis: { categories: chartDataAll[currentPeriod].map(d => d.label) }
+                            });
+                            chart.updateSeries([{
+                                name: 'Gelir',
+                                data: chartDataAll[currentPeriod].map(d => d.revenue)
+                            }]);
                         });
-                        chart.updateSeries([{
-                            name: 'Gelir',
-                            data: chartDataAll[currentPeriod].map(d => d.revenue)
-                        }]);
                     });
                 }
             } catch (e) {

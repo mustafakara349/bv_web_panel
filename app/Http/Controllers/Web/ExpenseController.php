@@ -120,6 +120,7 @@ class ExpenseController extends Controller
                 'payment_method' => $validated['payment_method'],
                 'description' => 'Gider Harcaması - ' . ($category ? $category->name : '') . ($validated['description'] ? ' (' . $validated['description'] . ')' : ''),
                 'transaction_date' => $validated['expense_date'],
+                'expense_id' => $expense->id,
             ]);
         });
 
@@ -139,15 +140,8 @@ class ExpenseController extends Controller
                 Storage::disk('public')->delete($expense->receipt_file);
             }
 
-            // Also delete the automatically created expense transaction from the transactions table
-            // We match by transaction_date, amount, type = expense and description matching
-            Transaction::where('branch_id', $expense->branch_id)
-                ->where('transaction_type', TransactionType::Expense)
-                ->where('amount', $expense->amount)
-                ->whereDate('transaction_date', $expense->expense_date)
-                ->where('description', 'like', '%Gider Harcaması%')
-                ->first()
-                ?->delete();
+            // Delete the linked transaction directly using the relation!
+            $expense->transaction?->delete();
 
             $expense->delete();
         });
