@@ -146,15 +146,15 @@
         </div>
 
         <div class="col-lg-3 col-12">
-            <div class="card p-4 bg-info bg-opacity-10 border border-info border-opacity-25 rounded-2">
+            <div class="card p-4 bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded-2">
                 <div class="d-flex gap-3">
-                    <div class="icon-shape icon-md bg-info text-white rounded-2">
-                        <i class="ti ti-report-money fs-4"></i>
+                    <div class="icon-shape icon-md bg-danger text-white rounded-2">
+                        <i class="ti ti-coins fs-4"></i>
                     </div>
                     <div>
-                        <h2 class="mb-3 fs-6">Aylık Gelir</h2>
-                        <h3 class="fw-bold mb-0">₺{{ number_format($widgets['revenue']['monthly'] ?? 0, 0, ',', '.') }}</h3>
-                        <p class="text-info mb-0 small">Bu ay</p>
+                        <h2 class="mb-3 fs-6">Günlük Gider</h2>
+                        <h3 class="fw-bold mb-0">₺{{ number_format($widgets['revenue']['daily_expense'] ?? 0, 0, ',', '.') }}</h3>
+                        <p class="text-danger mb-0 small">Bugün</p>
                     </div>
                 </div>
             </div>

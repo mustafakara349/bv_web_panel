@@ -19,9 +19,11 @@ class DashboardRepository implements DashboardRepositoryInterface
     public function getRevenueStats(int $branchId, string $period = 'month'): array
     {
         $base = Transaction::forBranch($branchId)->income();
+        $dailyExpense = Expense::forBranch($branchId)->whereDate('expense_date', today())->sum('amount');
 
         return [
             'daily' => round((clone $base)->whereDate('transaction_date', today())->sum('amount'), 2),
+            'daily_expense' => round($dailyExpense, 2),
             'weekly' => round((clone $base)->whereBetween('transaction_date', [now()->startOfWeek(), now()->endOfWeek()])->sum('amount'), 2),
             'monthly' => round((clone $base)->whereMonth('transaction_date', now()->month)->whereYear('transaction_date', now()->year)->sum('amount'), 2),
             'yearly' => round((clone $base)->whereYear('transaction_date', now()->year)->sum('amount'), 2),

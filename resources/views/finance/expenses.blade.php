@@ -32,10 +32,10 @@
                     <i class="ti ti-calendar" style="font-size: 110px; line-height: 1;"></i>
                 </div>
                 <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div class="p-2 bg-white bg-opacity-20 rounded-3">
+                    <div class="p-2 rounded-3" style="background-color: rgba(255, 255, 255, 0.2);">
                         <i class="ti ti-calendar fs-4 text-white"></i>
                     </div>
-                    <span class="badge bg-white bg-opacity-25 rounded-pill px-3 py-1 text-white">Bu Ay</span>
+                    <span class="badge rounded-pill px-3 py-1 text-white" style="background-color: rgba(255, 255, 255, 0.25);">Bu Ay</span>
                 </div>
                 <h6 class="text-white text-opacity-75 small mb-1 fw-medium text-uppercase tracking-wider">Bu Ayki Toplam Gider</h6>
                 <h3 class="fs-2 fw-bold mb-0">₺{{ number_format($totalExpenseThisMonth, 2, ',', '.') }}</h3>
@@ -51,10 +51,10 @@
                     <i class="ti ti-coins" style="font-size: 110px; line-height: 1;"></i>
                 </div>
                 <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div class="p-2 bg-white bg-opacity-20 rounded-3">
+                    <div class="p-2 rounded-3" style="background-color: rgba(255, 255, 255, 0.2);">
                         <i class="ti ti-report-money fs-4 text-white"></i>
                     </div>
-                    <span class="badge bg-white bg-opacity-25 rounded-pill px-3 py-1 text-white">Filtrelenmiş Toplam</span>
+                    <span class="badge rounded-pill px-3 py-1 text-white" style="background-color: rgba(255, 255, 255, 0.25);">Filtrelenmiş Toplam</span>
                 </div>
                 <h6 class="text-white text-opacity-75 small mb-1 fw-medium text-uppercase tracking-wider">Filtrelenmiş Toplam Gider</h6>
                 <h3 class="fs-2 fw-bold mb-0">₺{{ number_format($totalExpenseAllTime, 2, ',', '.') }}</h3>
@@ -70,10 +70,10 @@
                     <i class="ti ti-chart-pie" style="font-size: 110px; line-height: 1;"></i>
                 </div>
                 <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div class="p-2 bg-white bg-opacity-20 rounded-3">
+                    <div class="p-2 rounded-3" style="background-color: rgba(255, 255, 255, 0.2);">
                         <i class="ti ti-chart-bar fs-4 text-white"></i>
                     </div>
-                    <span class="badge bg-white bg-opacity-25 rounded-pill px-3 py-1 text-white">En Çok Harcanan</span>
+                    <span class="badge rounded-pill px-3 py-1 text-white" style="background-color: rgba(255, 255, 255, 0.25);">En Çok Harcanan</span>
                 </div>
                 <h6 class="text-white text-opacity-75 small mb-1 fw-medium text-uppercase tracking-wider">En Yüksek Gider Kategorisi</h6>
                 <h3 class="fs-4 fw-bold mb-0 text-truncate">

@@ -29,10 +29,10 @@
                     <i class="ti ti-circle-arrow-up-right" style="font-size: 110px; line-height: 1;"></i>
                 </div>
                 <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div class="p-2 bg-white bg-opacity-20 rounded-3">
+                    <div class="p-2 rounded-3" style="background-color: rgba(255, 255, 255, 0.2);">
                         <i class="ti ti-trending-up fs-4 text-white"></i>
                     </div>
-                    <span class="badge bg-white bg-opacity-25 rounded-pill px-3 py-1 text-white">Filtrelenmiş Gelir</span>
+                    <span class="badge rounded-pill px-3 py-1 text-white" style="background-color: rgba(255, 255, 255, 0.25);">Filtrelenmiş Gelir</span>
                 </div>
                 <h6 class="text-white text-opacity-75 small mb-1 fw-medium text-uppercase tracking-wider">Toplam Gelir</h6>
                 <h3 class="fs-2 fw-bold mb-0">₺{{ number_format($totalIncome, 2, ',', '.') }}</h3>
@@ -48,10 +48,10 @@
                     <i class="ti ti-circle-arrow-down-left" style="font-size: 110px; line-height: 1;"></i>
                 </div>
                 <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div class="p-2 bg-white bg-opacity-20 rounded-3">
+                    <div class="p-2 rounded-3" style="background-color: rgba(255, 255, 255, 0.2);">
                         <i class="ti ti-trending-down fs-4 text-white"></i>
                     </div>
-                    <span class="badge bg-white bg-opacity-25 rounded-pill px-3 py-1 text-white">Filtrelenmiş Gider</span>
+                    <span class="badge rounded-pill px-3 py-1 text-white" style="background-color: rgba(255, 255, 255, 0.25);">Filtrelenmiş Gider</span>
                 </div>
                 <h6 class="text-white text-opacity-75 small mb-1 fw-medium text-uppercase tracking-wider">Toplam Gider</h6>
                 <h3 class="fs-2 fw-bold mb-0">₺{{ number_format($totalExpense, 2, ',', '.') }}</h3>
@@ -67,10 +67,10 @@
                     <i class="ti ti-wallet" style="font-size: 110px; line-height: 1;"></i>
                 </div>
                 <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div class="p-2 bg-white bg-opacity-20 rounded-3">
+                    <div class="p-2 rounded-3" style="background-color: rgba(255, 255, 255, 0.2);">
                         <i class="ti ti-wallet fs-4 text-white"></i>
                     </div>
-                    <span class="badge bg-white bg-opacity-25 rounded-pill px-3 py-1 text-white">Bakiye</span>
+                    <span class="badge rounded-pill px-3 py-1 text-white" style="background-color: rgba(255, 255, 255, 0.25);">Bakiye</span>
                 </div>
                 <h6 class="text-white text-opacity-75 small mb-1 fw-medium text-uppercase tracking-wider">Net Kasa Durumu</h6>
                 <h3 class="fs-2 fw-bold mb-0">
@@ -205,7 +205,7 @@
                                 </td>
                                 <td>
                                     <span class="badge bg-light text-secondary border px-3 py-2 rounded-pill">
-                                        <i class="ti ti-credit-card me-1"></i> {{ $transaction->payment_method->label() }}
+                                        <i class="ti {{ $transaction->payment_method->icon() }} me-1"></i> {{ $transaction->payment_method->label() }}
                                     </span>
                                 </td>
                                 <td>
