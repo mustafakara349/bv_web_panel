@@ -65,6 +65,14 @@
                         <small class="text-muted d-block">Kaynak</small>
                         <span>{{ $appointment->source?->label() }}</span>
                     </div>
+                    @if($appointment->cancellation_reason)
+                    <div class="col-12 mt-3 pt-3 border-top">
+                        <small class="text-danger d-block fw-bold"><i class="ti ti-alert-triangle me-1"></i>Randevu Red/İptal Nedeni</small>
+                        <span class="text-dark bg-danger-subtle px-3 py-2 rounded d-block mt-1 fw-semibold" style="border-left: 4px solid #dc3545; font-size: 13px;">
+                            {{ $appointment->cancellation_reason }}
+                        </span>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>

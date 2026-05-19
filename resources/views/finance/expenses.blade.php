@@ -48,7 +48,7 @@
         <div class="card border-0 rounded-4 shadow-sm text-white overflow-hidden" style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);">
             <div class="card-body p-4 position-relative">
                 <div class="position-absolute end-0 bottom-0 opacity-10 mb-n3 me-n2">
-                    <i class="ti ti-sum" style="font-size: 110px; line-height: 1;"></i>
+                    <i class="ti ti-coins" style="font-size: 110px; line-height: 1;"></i>
                 </div>
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <div class="p-2 bg-white bg-opacity-20 rounded-3">
@@ -120,7 +120,7 @@
                 </div>
                 @if(request()->anyFilled(['category_id', 'start_date', 'end_date']))
                     <a href="{{ route('finance.expenses') }}" class="btn btn-light rounded-pill btn-sm text-secondary d-flex align-items-center gap-1">
-                        <i class="ti ti-refresh"></i> Filtreleri Temizle
+                        <i class="ti ti-rotate"></i> Filtreleri Temizle
                     </a>
                 @endif
             </div>

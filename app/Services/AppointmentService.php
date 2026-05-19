@@ -63,7 +63,7 @@ class AppointmentService
         });
     }
 
-    public function updateStatus(Appointment $appointment, AppointmentStatus $status, ?int $userId = null, ?string $note = null): Appointment
+    public function updateStatus(Appointment $appointment, AppointmentStatus $status, ?int $userId = null, ?string $note = null, ?string $cancellationReason = null): Appointment
     {
         $oldStatus = $appointment->status->value;
 
@@ -73,9 +73,12 @@ class AppointmentService
             $updateData['completed_at'] = now();
         }
 
-        if ($status === AppointmentStatus::Cancelled) {
+        if ($status === AppointmentStatus::Cancelled || $status === AppointmentStatus::Rejected) {
             $updateData['cancelled_at'] = now();
             $updateData['cancelled_by'] = $userId;
+            if ($cancellationReason) {
+                $updateData['cancellation_reason'] = $cancellationReason;
+            }
         }
 
         if ($status === AppointmentStatus::NoShow) {

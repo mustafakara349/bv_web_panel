@@ -34,7 +34,13 @@ class AppointmentController extends Controller
             'search' => $request->get('search'),
         ], $request->get('per_page', 15));
 
-        $employees = Employee::forBranch($branchId)->active()->with('user')->get();
+        $employees = Employee::forBranch($branchId)
+            ->active()
+            ->whereHas('user', function ($q) {
+                $q->where('role_id', 5);
+            })
+            ->with('user')
+            ->get();
         $statuses = AppointmentStatus::cases();
         $activeBranch = \App\Models\Branch::find($branchId);
 
@@ -130,7 +136,10 @@ class AppointmentController extends Controller
             abort(403, 'Yetkisiz işlem.');
         }
 
-        $request->validate(['status' => 'required|string']);
+        $request->validate([
+            'status' => 'required|string',
+            'cancellation_reason' => $request->status === 'rejected' ? 'required|string|min:1' : 'nullable|string',
+        ]);
 
         $status = AppointmentStatus::from($request->status);
 
@@ -138,7 +147,8 @@ class AppointmentController extends Controller
             $appointment,
             $status,
             auth()->id(),
-            $request->get('note')
+            $request->get('note'),
+            $request->get('cancellation_reason')
         );
 
         return back()->with('success', 'Randevu durumu güncellendi.');
@@ -226,13 +236,18 @@ class AppointmentController extends Controller
         ]);
 
         \Illuminate\Support\Facades\DB::transaction(function () use ($appointment, $validated) {
+            $paidAtDateTime = \Carbon\Carbon::parse($validated['paid_at']);
+            if ($paidAtDateTime->isToday()) {
+                $paidAtDateTime->setTimeFrom(now());
+            }
+
             // 1. Create the Payment
             \App\Models\Payment::create([
                 'appointment_id' => $appointment->id,
                 'amount' => $validated['amount'],
                 'payment_method' => $validated['payment_method'],
                 'transaction_reference' => $validated['transaction_reference'],
-                'paid_at' => $validated['paid_at'],
+                'paid_at' => $paidAtDateTime,
             ]);
 
             // 2. Re-calculate total paid amount
@@ -260,7 +275,7 @@ class AppointmentController extends Controller
                 'currency' => 'TRY',
                 'payment_method' => $validated['payment_method'],
                 'description' => 'Randevu Ödemesi - #' . $appointment->appointment_code . ' (' . ($appointment->customer?->full_name ?? 'Müşteri') . ')',
-                'transaction_date' => $validated['paid_at'],
+                'transaction_date' => $paidAtDateTime,
                 'appointment_id' => $appointment->id,
             ]);
         });
@@ -317,6 +332,11 @@ class AppointmentController extends Controller
         ]);
 
         \Illuminate\Support\Facades\DB::transaction(function () use ($appointment, $validated) {
+            $paidAtDateTime = \Carbon\Carbon::parse($validated['paid_at']);
+            if ($paidAtDateTime->isToday()) {
+                $paidAtDateTime->setTimeFrom(now());
+            }
+
             // 1. Update status to Completed using AppointmentService
             $this->appointmentService->updateStatus(
                 $appointment,
@@ -331,7 +351,7 @@ class AppointmentController extends Controller
                 'amount' => $validated['amount'],
                 'payment_method' => $validated['payment_method'],
                 'transaction_reference' => $validated['transaction_reference'],
-                'paid_at' => $validated['paid_at'],
+                'paid_at' => $paidAtDateTime,
             ]);
 
             // 3. Re-calculate total paid amount
@@ -359,7 +379,7 @@ class AppointmentController extends Controller
                 'currency' => 'TRY',
                 'payment_method' => $validated['payment_method'],
                 'description' => 'Randevu Ödemesi - #' . $appointment->appointment_code . ' (' . ($appointment->customer?->full_name ?? 'Müşteri') . ')',
-                'transaction_date' => $validated['paid_at'],
+                'transaction_date' => $paidAtDateTime,
                 'appointment_id' => $appointment->id,
             ]);
         });

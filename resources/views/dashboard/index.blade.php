@@ -91,17 +91,14 @@
                                                             <i class="ti ti-check me-1"></i>Onayla
                                                         </button>
                                                     </form>
-                                                    <form action="{{ route('appointments.update-status', $apt) }}" method="POST"
-                                                        class="d-inline"
-                                                        onsubmit="return confirm('Bu randevuyu reddetmek istediğinize emin misiniz?');">
-                                                        @csrf
-                                                        @method('PATCH')
-                                                        <input type="hidden" name="status" value="rejected">
-                                                        <button type="submit" class="btn btn-sm btn-danger" title="Reddet"
+                                                    <button type="button" class="btn btn-sm btn-danger btn-reject-trigger" 
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#rejectReasonModal"
+                                                            data-url="{{ route('appointments.update-status', $apt) }}"
+                                                            title="Reddet"
                                                             style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                                                            <i class="ti ti-x me-1"></i>Reddet
-                                                        </button>
-                                                    </form>
+                                                        <i class="ti ti-x me-1"></i>Reddet
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -441,15 +438,15 @@
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span>Toplam Randevu</span>
-                        <span class="fw-bold" id="stat_total">{{ $widgets['appointments']['month_total'] ?? 0 }}</span>
+                        <a href="{{ route('appointments.index') }}" class="fw-bold text-dark text-decoration-underline" id="stat_total">{{ $widgets['appointments']['month_total'] ?? 0 }}</a>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span>İptal Edilen</span>
-                        <span class="fw-bold text-danger" id="stat_cancelled">{{ $widgets['appointments']['month_cancelled'] ?? 0 }}</span>
+                        <a href="{{ route('appointments.index', ['status' => 'cancelled']) }}" class="fw-bold text-danger text-decoration-underline" id="stat_cancelled">{{ $widgets['appointments']['month_cancelled'] ?? 0 }}</a>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span>Gelmeyen</span>
-                        <span class="fw-bold text-warning" id="stat_no_show">{{ $widgets['appointments']['month_no_show'] ?? 0 }}</span>
+                        <a href="{{ route('appointments.index', ['status' => 'no_show']) }}" class="fw-bold text-warning text-decoration-underline" id="stat_no_show">{{ $widgets['appointments']['month_no_show'] ?? 0 }}</a>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span>İptal Oranı</span>
@@ -758,12 +755,53 @@
             </div>
         </div>
     </div>
+
+    <!-- Rejection Reason Modal -->
+    <div class="modal fade" id="rejectReasonModal" tabindex="-1" aria-labelledby="rejectReasonModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg text-start" style="border-radius: 12px;">
+                <div class="modal-header bg-danger text-white border-0 py-3">
+                    <h5 class="modal-title fw-bold" id="rejectReasonModalLabel"><i class="ti ti-x me-1"></i> Randevuyu Reddet</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                <form id="rejectReasonForm" method="POST" action="">
+                    @csrf
+                    @method('PATCH')
+                    <input type="hidden" name="status" value="rejected">
+                    <div class="modal-body p-4">
+                        <p class="text-secondary small mb-3">Bu randevuyu reddetmek istediğinize emin misiniz? Lütfen reddetme nedenini aşağıya yazınız. Bu işlem geri alınamaz.</p>
+                        <div class="mb-3">
+                            <label for="cancellation_reason_input" class="form-label fw-semibold">Reddetme Nedeni <span class="text-danger">*</span></label>
+                            <textarea class="form-control border bg-light" id="cancellation_reason_input" name="cancellation_reason" rows="3" required placeholder="Örn: Berber o saatte müsait değil, elektrik kesintisi vb."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light border-0 py-3">
+                        <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Vazgeç</button>
+                        <button type="submit" class="btn btn-danger px-4 fw-bold">Reddet</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const chartDataAll = @json($revenueChart);
+
+            // Reject Modal Trigger Handler
+            document.querySelectorAll('.btn-reject-trigger').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const url = this.getAttribute('data-url');
+                    const form = document.getElementById('rejectReasonForm');
+                    if (form) {
+                        form.action = url;
+                    }
+                    const textarea = document.getElementById('cancellation_reason_input');
+                    if (textarea) textarea.value = '';
+                });
+            });
 
             // Render Revenue Chart
             try {

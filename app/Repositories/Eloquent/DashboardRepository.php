@@ -211,7 +211,7 @@ class DashboardRepository implements DashboardRepositoryInterface
     public function getRevenueChart(int $branchId, string $period = 'year'): array
     {
         if ($period === 'day') {
-            return collect(range(8, 22))->map(function ($hour) use ($branchId) {
+            return collect(range(0, 23))->map(function ($hour) use ($branchId) {
                 $revenue = Transaction::forBranch($branchId)
                     ->income()
                     ->whereDate('transaction_date', today())
