@@ -80,6 +80,13 @@
         </li>
 
         <li>
+            <a class="nav-link {{ (request()->is('finance/debts*') || request()->routeIs('finance.debts*')) ? 'active' : '' }}" href="{{ route('finance.debts.index') }}">
+                <i class="ti ti-file-invoice"></i>
+                <span class="nav-text">Borç Takibi</span>
+            </a>
+        </li>
+
+        <li>
             <a class="nav-link {{ (request()->is('finance/expenses*') || request()->routeIs('finance.expenses*')) ? 'active' : '' }}" href="{{ route('finance.expenses') }}">
                 <i class="ti ti-receipt"></i>
                 <span class="nav-text">Giderler</span>

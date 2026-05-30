@@ -101,6 +101,11 @@ class User extends Authenticatable
         return $this->hasMany(CustomerNote::class, 'customer_id');
     }
 
+    public function debts(): HasMany
+    {
+        return $this->hasMany(Debt::class, 'customer_id');
+    }
+
     public function auditLogs(): HasMany
     {
         return $this->hasMany(AuditLog::class);

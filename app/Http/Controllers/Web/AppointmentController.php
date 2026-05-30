@@ -151,6 +151,8 @@ class AppointmentController extends Controller
             $request->get('cancellation_reason')
         );
 
+        \App\Models\Debt::syncDebtForAppointment($appointment->fresh());
+
         return back()->with('success', 'Randevu durumu güncellendi.');
     }
 
@@ -280,6 +282,8 @@ class AppointmentController extends Controller
             ]);
         });
 
+        \App\Models\Debt::syncDebtForAppointment($appointment->fresh());
+
         return back()->with('success', 'Ödeme başarıyla kaydedildi.');
     }
 
@@ -313,6 +317,8 @@ class AppointmentController extends Controller
                 'payment_status' => $paymentStatus,
             ]);
         });
+
+        \App\Models\Debt::syncDebtForAppointment($appointment->fresh());
 
         return back()->with('success', 'Ödeme kaydı ve ilişkili kasa işlemi silindi.');
     }
@@ -383,6 +389,8 @@ class AppointmentController extends Controller
                 'appointment_id' => $appointment->id,
             ]);
         });
+
+        \App\Models\Debt::syncDebtForAppointment($appointment->fresh());
 
         return back()->with('success', 'Randevu başarıyla tamamlandı ve ödemesi kaydedildi.');
     }

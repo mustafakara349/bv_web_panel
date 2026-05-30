@@ -34,6 +34,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/finance/transactions', [App\Http\Controllers\Web\TransactionController::class, 'store'])->name('finance.transactions.store');
     Route::delete('/finance/transactions/{transaction}', [App\Http\Controllers\Web\TransactionController::class, 'destroy'])->name('finance.transactions.destroy');
 
+    // Debts Routes
+    Route::get('/finance/debts', [App\Http\Controllers\Web\DebtController::class, 'index'])->name('finance.debts.index');
+    Route::post('/finance/debts', [App\Http\Controllers\Web\DebtController::class, 'store'])->name('finance.debts.store');
+    Route::post('/finance/debts/{debt}/pay', [App\Http\Controllers\Web\DebtController::class, 'pay'])->name('finance.debts.pay');
+    Route::delete('/finance/debts/{debt}', [App\Http\Controllers\Web\DebtController::class, 'destroy'])->name('finance.debts.destroy');
+
     Route::get('/finance/expenses', [App\Http\Controllers\Web\ExpenseController::class, 'index'])->name('finance.expenses');
     Route::post('/finance/expenses', [App\Http\Controllers\Web\ExpenseController::class, 'store'])->name('finance.expenses.store');
     Route::delete('/finance/expenses/{expense}', [App\Http\Controllers\Web\ExpenseController::class, 'destroy'])->name('finance.expenses.destroy');

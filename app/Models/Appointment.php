@@ -98,6 +98,11 @@ class Appointment extends Model
         return $this->hasOne(Review::class);
     }
 
+    public function debt(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Debt::class);
+    }
+
     // Scopes
     public function scopeForBranch($query, int $branchId)
     {
