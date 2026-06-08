@@ -70,6 +70,22 @@
             </a>
         </li>
 
+        <li class="px-4 pt-4 pb-2"><small class="nav-text">Stok & Satış</small></li>
+
+        <li>
+            <a class="nav-link {{ (request()->is('products') || request()->routeIs('products.index')) ? 'active' : '' }}" href="{{ route('products.index') }}">
+                <i class="ti ti-box"></i>
+                <span class="nav-text">Ürün Yönetimi</span>
+            </a>
+        </li>
+
+        <li>
+            <a class="nav-link {{ (request()->is('products-sales*') || request()->routeIs('products.sales.*')) ? 'active' : '' }}" href="{{ route('products.sales.index') }}">
+                <i class="ti ti-shopping-cart"></i>
+                <span class="nav-text">Hızlı Satış</span>
+            </a>
+        </li>
+
         <li class="px-4 pt-4 pb-2"><small class="nav-text">Finans</small></li>
 
         <li>
@@ -90,6 +106,13 @@
             <a class="nav-link {{ (request()->is('finance/expenses*') || request()->routeIs('finance.expenses*')) ? 'active' : '' }}" href="{{ route('finance.expenses') }}">
                 <i class="ti ti-receipt"></i>
                 <span class="nav-text">Giderler</span>
+            </a>
+        </li>
+
+        <li>
+            <a class="nav-link {{ (request()->is('finance/commissions*') || request()->routeIs('finance.commissions*')) ? 'active' : '' }}" href="{{ route('finance.commissions.index') }}">
+                <i class="ti ti-wallet"></i>
+                <span class="nav-text">Prim & Hakediş</span>
             </a>
         </li>
 

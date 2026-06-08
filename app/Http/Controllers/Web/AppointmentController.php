@@ -11,6 +11,7 @@ use App\Models\Employee;
 use App\Models\Service;
 use App\Repositories\Contracts\AppointmentRepositoryInterface;
 use App\Services\AppointmentService;
+use App\Services\DashboardService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -19,7 +20,8 @@ class AppointmentController extends Controller
 {
     public function __construct(
         private AppointmentRepositoryInterface $appointmentRepo,
-        private AppointmentService $appointmentService
+        private AppointmentService $appointmentService,
+        private DashboardService $dashboardService
     ) {}
 
     public function index(Request $request): View
@@ -37,7 +39,9 @@ class AppointmentController extends Controller
         $employees = Employee::forBranch($branchId)
             ->active()
             ->whereHas('user', function ($q) {
-                $q->where('role_id', 5);
+                // Hardcoded role_id=5 yerine slug tabanlı sorgu kullanılır.
+                // Rol ID'si değiştiğinde kırılmaz.
+                $q->whereHas('role', fn ($r) => $r->where('slug', 'barber'));
             })
             ->with('user')
             ->get();
@@ -111,6 +115,9 @@ class AppointmentController extends Controller
         $data['source'] = 'admin_panel';
 
         $this->appointmentService->createAppointment($data);
+
+        // Yeni randevu oluşturulduğunda dashboard cache'ini temizle
+        $this->dashboardService->flushBranchCache((int) $data['branch_id']);
 
         return redirect()->route('appointments.index')->with('success', 'Randevu başarıyla oluşturuldu.');
     }
@@ -283,6 +290,9 @@ class AppointmentController extends Controller
         });
 
         \App\Models\Debt::syncDebtForAppointment($appointment->fresh());
+
+        // Ödeme alındığında dashboard kasa verileri güncellenmeli
+        $this->dashboardService->flushBranchCache($appointment->branch_id);
 
         return back()->with('success', 'Ödeme başarıyla kaydedildi.');
     }

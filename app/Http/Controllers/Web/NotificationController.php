@@ -65,8 +65,11 @@ class NotificationController extends Controller
 
     public function markAllRead()
     {
-        Notification::where('is_read', false)->update(['is_read' => true]);
-        return redirect()->route('notifications.index')->with('success', 'Tüm bildirimler okundu olarak işaretlendi.');
+        // Sadece oturum açan kullanıcının okunmamış bildirimlerini güncelle.
+        // Önceki hata: tüm kullanıcıların bildirimleri işaretleniyordu.
+        auth()->user()->notifications()->where('is_read', false)->update(['is_read' => true]);
+
+        return redirect()->route('notifications.index')->with('success', 'Tüm bildirimleriniz okundu olarak işaretlendi.');
     }
 
     public function toggleRead(Notification $notification)

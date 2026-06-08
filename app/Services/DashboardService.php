@@ -99,4 +99,28 @@ class DashboardService
             ->orderBy('start_at', 'desc')
             ->get();
     }
+
+    /**
+     * Bir şubeye ait tüm dashboard cache anahtarlarını temizler.
+     * Yeni randevu oluşturulduğunda veya ödeme alındığında çağrılır.
+     */
+    public function flushBranchCache(int $branchId): void
+    {
+        $keys = [
+            "dashboard.widgets.{$branchId}",
+            "dashboard.barbers.{$branchId}",
+            "dashboard.services.{$branchId}",
+            "dashboard.chart.{$branchId}.all_periods",
+        ];
+
+        foreach ($keys as $key) {
+            \Illuminate\Support\Facades\Cache::forget($key);
+        }
+
+        // appointments.{branchId}.{period} anahtarları için bilinen dönemler
+        $periods = ['today', 'this_week', 'this_month', 'last_30_days', 'last_month', 'this_year'];
+        foreach ($periods as $period) {
+            \Illuminate\Support\Facades\Cache::forget("dashboard.appointments.{$branchId}.{$period}");
+        }
+    }
 }

@@ -22,38 +22,65 @@ class AppointmentService
             $data['uuid'] = (string) Str::uuid();
             $data['appointment_code'] = $this->generateCode();
 
-            $services = $data['services'] ?? [];
+            $requestedServices = $data['services'] ?? [];
             unset($data['services']);
 
+            // Fiyat ve süreyi veritabanından çek; client değerlerini yoksay.
+            $serviceIds = collect($requestedServices)->pluck('service_id')->unique()->toArray();
+            $dbServices = \App\Models\Service::whereIn('id', $serviceIds)
+                ->get()
+                ->keyBy('id');
+
             $totalDuration = 0;
-            foreach ($services as $service) {
-                $totalDuration += $service['duration_minutes'];
+            $subtotal = 0;
+            $enrichedServices = [];
+
+            foreach ($requestedServices as $item) {
+                $serviceId = $item['service_id'];
+                $quantity  = $item['quantity'] ?? 1;
+
+                $dbService = $dbServices->get($serviceId);
+
+                if (! $dbService) {
+                    throw new \InvalidArgumentException("Hizmet bulunamadı: ID #{$serviceId}");
+                }
+
+                // Geçerli fiyat: varsa indirimli, yoksa normal fiyat
+                $unitPrice      = (float) ($dbService->discounted_price ?? $dbService->price);
+                $durationMinutes = (int) $dbService->duration_minutes;
+                $lineTotal       = $unitPrice * $quantity;
+
+                $totalDuration += $durationMinutes * $quantity;
+                $subtotal      += $lineTotal;
+
+                $enrichedServices[] = [
+                    'service_id'       => $serviceId,
+                    'quantity'         => $quantity,
+                    'duration_minutes' => $durationMinutes,
+                    'unit_price'       => $unitPrice,
+                    'total_price'      => $lineTotal,
+                ];
             }
 
-            $data['end_at'] = \Carbon\Carbon::parse($data['start_at'])->addMinutes($totalDuration);
+            $data['end_at']         = \Carbon\Carbon::parse($data['start_at'])->addMinutes($totalDuration);
             $data['total_duration'] = $totalDuration;
-
-            $subtotal = 0;
 
             $appointment = $this->appointmentRepo->create($data);
 
-            foreach ($services as $service) {
-                $totalPrice = $service['unit_price'] * ($service['quantity'] ?? 1);
-                $subtotal += $totalPrice;
-
+            foreach ($enrichedServices as $service) {
                 AppointmentServiceModel::create([
-                    'appointment_id' => $appointment->id,
-                    'service_id' => $service['service_id'],
-                    'employee_id' => $data['employee_id'],
-                    'quantity' => $service['quantity'] ?? 1,
+                    'appointment_id'   => $appointment->id,
+                    'service_id'       => $service['service_id'],
+                    'employee_id'      => $data['employee_id'],
+                    'quantity'         => $service['quantity'],
                     'duration_minutes' => $service['duration_minutes'],
-                    'unit_price' => $service['unit_price'],
-                    'total_price' => $totalPrice,
+                    'unit_price'       => $service['unit_price'],
+                    'total_price'      => $service['total_price'],
                 ]);
             }
 
             $appointment->update([
-                'subtotal' => $subtotal,
+                'subtotal'    => $subtotal,
                 'total_price' => $subtotal - ($data['discount_amount'] ?? 0) + ($data['tax_amount'] ?? 0),
             ]);
 
@@ -71,6 +98,22 @@ class AppointmentService
 
         if ($status === AppointmentStatus::Completed) {
             $updateData['completed_at'] = now();
+            
+            // Sadakat Puanı Kazanımı (1 TL = 1 Puan)
+            if ($oldStatus !== AppointmentStatus::Completed->value && $appointment->customer_id) {
+                try {
+                    $pointsToEarn = (int) $appointment->total_price;
+                    if ($pointsToEarn > 0) {
+                        app(\App\Services\LoyaltyService::class)->earnPoints(
+                            $appointment->customer_id, 
+                            $pointsToEarn, 
+                            "Randevu Tamamlandı (#{$appointment->appointment_code})"
+                        );
+                    }
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Sadakat puanı eklenemedi: ' . $e->getMessage());
+                }
+            }
         }
 
         if ($status === AppointmentStatus::Cancelled || $status === AppointmentStatus::Rejected) {

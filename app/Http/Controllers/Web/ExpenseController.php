@@ -81,46 +81,54 @@ class ExpenseController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'category_id' => 'required|exists:expense_categories,id',
-            'amount' => 'required|numeric|min:0.01',
-            'expense_date' => 'required|date',
-            'description' => 'nullable|string|max:500',
+            'category_id'    => 'required|exists:expense_categories,id',
+            'amount'         => 'required|numeric|min:0.01',
+            'expense_date'   => 'required|date',
+            'description'    => 'nullable|string|max:500',
             'payment_method' => 'required|string|in:cash,credit_card,bank_transfer',
-            'receipt_file' => 'nullable|file|image|mimes:jpeg,png,jpg,pdf|max:2048',
+            'receipt_file'   => 'nullable|file|image|mimes:jpeg,png,jpg,pdf|max:2048',
         ]);
 
         $branchId = $this->getActiveBranchId();
+
+        // Kategorinin aktif şubeye ait olduğunu doğrula (şube izolasyonu)
+        $category = ExpenseCategory::where('id', $validated['category_id'])
+            ->where('branch_id', $branchId)
+            ->first();
+
+        if (! $category) {
+            abort(403, 'Bu kategoriye erişim yetkiniz bulunmamaktadır.');
+        }
+
         $receiptPath = null;
 
         if ($request->hasFile('receipt_file')) {
             $receiptPath = $request->file('receipt_file')->store('receipts', 'public');
         }
 
-        DB::transaction(function () use ($validated, $branchId, $receiptPath) {
+        DB::transaction(function () use ($validated, $branchId, $receiptPath, $category) {
             // 1. Create the Expense
             $expense = Expense::create([
-                'branch_id' => $branchId,
-                'category_id' => $validated['category_id'],
-                'created_by' => Auth::id(),
-                'amount' => $validated['amount'],
+                'branch_id'    => $branchId,
+                'category_id'  => $validated['category_id'],
+                'created_by'   => Auth::id(),
+                'amount'       => $validated['amount'],
                 'expense_date' => $validated['expense_date'],
-                'description' => $validated['description'],
+                'description'  => $validated['description'],
                 'receipt_file' => $receiptPath,
             ]);
 
-            $category = ExpenseCategory::find($validated['category_id']);
-
             // 2. Automatically create the corresponding Transaction for kasa balance integrity!
             Transaction::create([
-                'branch_id' => $branchId,
-                'created_by' => Auth::id(),
+                'branch_id'        => $branchId,
+                'created_by'       => Auth::id(),
                 'transaction_type' => TransactionType::Expense,
-                'amount' => $validated['amount'],
-                'currency' => 'TRY',
-                'payment_method' => $validated['payment_method'],
-                'description' => 'Gider Harcaması - ' . ($category ? $category->name : '') . ($validated['description'] ? ' (' . $validated['description'] . ')' : ''),
+                'amount'           => $validated['amount'],
+                'currency'         => 'TRY',
+                'payment_method'   => $validated['payment_method'],
+                'description'      => 'Gider Harcaması - ' . $category->name . ($validated['description'] ? ' (' . $validated['description'] . ')' : ''),
                 'transaction_date' => $validated['expense_date'],
-                'expense_id' => $expense->id,
+                'expense_id'       => $expense->id,
             ]);
         });
 

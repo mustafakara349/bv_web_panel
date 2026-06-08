@@ -63,9 +63,12 @@
                     </div>
                 </div>
             </div>
-            <div class="card-footer bg-white border-top p-3 text-center">
-                <a href="{{ route('customers.edit', $customer->id) }}" class="btn btn-primary rounded-pill px-4 w-100">
+            <div class="card-footer bg-white border-top p-3 d-flex flex-column gap-2 text-center">
+                <a href="{{ route('customers.edit', $customer->id) }}" class="btn btn-primary rounded-pill px-4 w-100 shadow-sm">
                     <i class="ti ti-pencil me-1"></i> Profili Düzenle
+                </a>
+                <a href="{{ route('customers.loyalty.show', $customer->id) }}" class="btn btn-outline-success rounded-pill px-4 w-100 shadow-sm d-flex justify-content-center align-items-center gap-2">
+                    <i class="ti ti-star fs-5"></i> Sadakat Kartı
                 </a>
             </div>
         </div>

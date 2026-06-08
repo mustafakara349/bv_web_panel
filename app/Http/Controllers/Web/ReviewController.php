@@ -48,6 +48,14 @@ class ReviewController extends Controller
 
     public function destroy(Review $review)
     {
+        // Review'ın bağlı olduğu randevu üzerinden şube kontrolü
+        $review->loadMissing('appointment');
+        $branchId = session('active_branch_id', 1);
+
+        if ($review->appointment && $review->appointment->branch_id !== $branchId) {
+            abort(403, 'Bu değerlendirmeye erişim yetkiniz bulunmamaktadır.');
+        }
+
         $review->delete();
         return redirect()->route('reviews.index')->with('success', 'Değerlendirme başarıyla silindi.');
     }

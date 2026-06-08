@@ -234,10 +234,19 @@ class DebtController extends Controller
             abort(403, 'Yetkisiz işlem.');
         }
 
+        // Randevu borçları doğrudan silinemez
         if ($debt->appointment_id !== null) {
             return back()->with('error', 'Randevu borçları doğrudan silinemez. Randevu durumunu veya ödemelerini güncelleyerek işlem yapın.');
         }
 
+        // Kısmen ödenmiş borçlar silinemez; kasada ilişkili Transaction kayıtları mevcuttur.
+        // Silme işlemi finansal tutarsızlığa (orphan Transaction) yol açar.
+        if ((float) $debt->paid_amount > 0) {
+            return back()->with('error', 'Kısmen ödenmiş borç kaydı silinemez. Toplam: ₺' . number_format($debt->amount, 2, ',', '.') . ' / Ödenen: ₺' . number_format($debt->paid_amount, 2, ',', '.') . '. Lütfen yetkili ile iletişime geçin.');
+        }
+
+        // paid_amount = 0 olan manuel borçlar için kasada hiçbir tahsilat izi yoktur;
+        // güvenle silebiliriz.
         $debt->delete();
 
         return redirect()->route('finance.debts.index')
